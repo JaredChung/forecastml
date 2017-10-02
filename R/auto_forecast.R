@@ -3,13 +3,29 @@
 # Project automatic forecast ML
 # Jared Chung
 # 23/08/2017
+# file: Standard forecasting techniques
+# ========================================== #
+
 
 
 library(fpp2) # data to test time series on
+library(forecast)
+library(ggplot2)
+library(caret)
+
+
+# load test data of pharmaceutical products
+data <- a10
+
+train <- window()
+
+
+model <- ets(data)
 
 
 
-auto_forecast <- function(data) {
+
+standard_forecast <- function(data) {
 
 
 
@@ -21,7 +37,11 @@ auto_forecast <- function(data) {
 
 
 
+
+# Incorporate below Modelling Code
+
 library(h2o)
+
 h2o.init(strict_version_check = FALSE)
 # show general information on the airquality dataset
 colnames(airquality)
