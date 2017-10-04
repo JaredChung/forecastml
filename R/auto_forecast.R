@@ -6,6 +6,14 @@
 # file: Standard forecasting techniques
 # ========================================== #
 
+#' Forecast using standard forecasting
+#'
+#' @param data Time series object as an input
+#' @param
+#'
+#' @example
+
+
 
 
 library(fpp2) # data to test time series on
@@ -26,6 +34,9 @@ model <- ets(data)
 
 
 standard_forecast <- function(data) {
+
+          model <- ets(data)
+          model2 <- auto.arima(data)
 
 
 
