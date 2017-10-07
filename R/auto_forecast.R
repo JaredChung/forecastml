@@ -20,24 +20,48 @@ library(fpp2) # data to test time series on
 library(forecast)
 library(ggplot2)
 library(caret)
+library(tidyverse)
+library(zoo)
 
 
 # load test data of pharmaceutical products
 data <- a10
 
-train <- window()
 
 
-model <- ets(data)
+preprocess_data <- function(data) {
 
 
+    if("ts" %in% class(data)) {
+      data <- data.frame(date = as.Date(yearmon(time(data))), value=  as.matrix(data))
+      train = data[1:floor(nrow(data)*0.8),]
+      test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
+    }
+    return(list(train=train,test=test))
+}
+
+
+train <- preprocess_data(data)$train
+
+test <- preprocess_data(data)$test
 
 
 standard_forecast <- function(data) {
 
+          # Expoinential smoothing
           model <- ets(data)
+
+          # Arima
           model2 <- auto.arima(data)
 
+          # Exponential smoothing + ARMA + Box Cox transformations
+          model3 <- tbats(data)
+
+          model4 <- nnetar(data)
+
+          model5 <- thetaf()
+
+          model6 <-
 
 
 }
