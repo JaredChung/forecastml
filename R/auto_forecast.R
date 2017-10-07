@@ -28,7 +28,6 @@ library(zoo)
 data <- a10
 
 
-
 preprocess_data <- function(data) {
 
 
@@ -36,30 +35,40 @@ preprocess_data <- function(data) {
       data <- data.frame(date = as.Date(yearmon(time(data))), value=  as.matrix(data))
       train = data[1:floor(nrow(data)*0.8),]
       test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
+    } else {
+      train = data[1:floor(nrow(data)*0.8),]
+      test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
     }
     return(list(train=train,test=test))
+
+
+
 }
 
-
-train <- preprocess_data(data)$train
-
-test <- preprocess_data(data)$test
 
 
 standard_forecast <- function(data) {
 
+
+
+          train <- preprocess_data(data)$train
+
+          test <- preprocess_data(data)$test
+
           # Expoinential smoothing
-          model <- ets(data)
+          model <- ets(train)
 
           # Arima
-          model2 <- auto.arima(data)
+          model2 <- auto.arima(train)
 
           # Exponential smoothing + ARMA + Box Cox transformations
-          model3 <- tbats(data)
+          model3 <- tbats(train)
 
-          model4 <- nnetar(data)
+          # Basic single hidden layer neural network
+          model4 <- nnetar(train)
 
-          model5 <- thetaf()
+          #
+          model5 <- thetaf(train)
 
           model6 <-
 
