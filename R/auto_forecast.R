@@ -47,15 +47,35 @@ preprocess_data <- function(data) {
 
 
 
-standard_forecast <- function(data,start = ,frequency = 12) {
+standard_forecast <- function(data,start = ,cv_horizon = 12) {
 
           #
 
-          train <- ts(preprocess_data(data)$train$value,start = start , frequency = frequency)
+          if ("ts" %in% class(data)) {
+              return(timeslice <- createTimeSlices(1:length(data),initialWindow = length(data) * 0.7, horizon = 12, fixedWindow = TRUE))
+          }else {
+              return(timeslice <- createTimeSlices(1:nrow(data),initialWindow = nrow(data) * 0.7, horizon = 12, fixedWindow = TRUE))
+          }
 
-          test <- tspreprocess_data(data)$test
+          trainslices <- timeslice$train
+          testslices <- timeslice$test
+
+          predictions <- list()
+          results <- list()
+
+          for( i in 1:length(timeslice)) {
+
+            model <- forecast::ets(data[trainslices[[i]],])
+
+            pred <- predict(model,data[testslices[[i]],])
 
 
+            true <- data[testslices[[i]]]
+            plot(true, col = "red", ylab = "true (red) , pred (blue)",
+                 main = i, ylim = range(c(pred,true)))
+            points(pred, col = "blue")
+
+          }
 
           # Automatic Expoinential smoothing
           model <- forecast::ets(train)
@@ -93,7 +113,6 @@ for(i in 1:length(trainSlices)){
        main = i, ylim = range(c(pred,true)))
   points(pred, col = "blue")
 }
-x <- createTimeSlices(1:length(data),initialWindow = length(data) * 0.7, horizon = 12, fixedWindow = TRUE)
 
 
 
