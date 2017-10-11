@@ -29,9 +29,6 @@ data <- a10
 
 preprocess_data <- function(data) {
 
-
-
-
     if("ts" %in% class(data)) {
       data <- data.frame(date = as.Date(yearmon(time(data))), value=  as.matrix(data))
       train = data[1:floor(nrow(data)*0.8),]
@@ -63,17 +60,11 @@ standard_forecast <- function(data,start = ,cv_horizon = 12) {
           predictions <- list()
           results <- list()
 
-          for( i in 1:length(timeslice)) {
+          for(i in 1:length(timeslice)) {
 
-            model <- forecast::ets(data[trainslices[[i]],])
+            model <- forecast::ets(data[trainslices[[i]]])
 
-            pred <- predict(model,data[testslices[[i]],])
-
-
-            true <- data[testslices[[i]]]
-            plot(true, col = "red", ylab = "true (red) , pred (blue)",
-                 main = i, ylim = range(c(pred,true)))
-            points(pred, col = "blue")
+            predictions <- forecast::forecast(model,h=length(data[testslices[[i]]]))
 
           }
 
