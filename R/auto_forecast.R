@@ -27,6 +27,7 @@ library(lubridate)
 data <- a10
 
 
+# Standard 80/20 train test split
 preprocess_data <- function(data) {
 
     if("ts" %in% class(data)) {
@@ -42,6 +43,10 @@ preprocess_data <- function(data) {
 }
 
 
+cross_validation_data <- function(data) {
+
+
+}
 
 
 standard_forecast <- function(data,start = ,cv_horizon = 12) {
@@ -54,17 +59,36 @@ standard_forecast <- function(data,start = ,cv_horizon = 12) {
               return(timeslice <- createTimeSlices(1:nrow(data),initialWindow = nrow(data) * 0.7, horizon = 12, fixedWindow = TRUE))
           }
 
+
           trainslices <- timeslice$train
           testslices <- timeslice$test
 
-          predictions <- list()
-          results <- list()
+          predictions <- data.frame()
+          results <- data.frame()
 
+
+          # testing models on sample
+          model <- forecast::ets(data[trainslices[[1]]],lambda=BoxCox.lambda(data))
+
+          model2 <- forecast::auto.arima(data[trainslices[[1]]],lambda=BoxCox.lambda(data))
+
+          predictions <- forecast::forecast(model,h=length(data[testslices[[1]]]))
+
+          predictions2 <- forecast::forecast(model2,h=length(data[testslices[[1]]]))
+
+          result <- accuracy(predictions,data[testslices[[1]]])
+
+          result2 <- accuracy(predictions2,data[testslices[[1]]])
+
+
+
+          # Cross validation time series
           for(i in 1:length(timeslice)) {
 
             model <- forecast::ets(data[trainslices[[i]]])
 
             predictions <- forecast::forecast(model,h=length(data[testslices[[i]]]))
+
 
           }
 
