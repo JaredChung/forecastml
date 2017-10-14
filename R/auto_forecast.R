@@ -21,6 +21,7 @@ library(caret)
 library(tidyverse)
 library(zoo)
 library(lubridate)
+library(parallel)
 
 
 # load test data of pharmaceutical products
@@ -28,89 +29,90 @@ data <- a10
 
 
 # Standard 80/20 train test split
-preprocess_data <- function(data) {
+train_test_data <- function(data) {
 
-    if("ts" %in% class(data)) {
-      data <- data.frame(date = as.Date(yearmon(time(data))), value=  as.matrix(data))
-      train = data[1:floor(nrow(data)*0.8),]
-      test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
-    } else {
-      train = data[1:floor(nrow(data)*0.8),]
-      test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
-    }
-    return(list(train=train,test=test))
-
-}
-
-
-cross_validation_data <- function(data) {
-
+      if("ts" %in% class(data)) {
+        data <- data.frame(date = as.Date(yearmon(time(data))), value=  as.matrix(data))
+        train = data[1:floor(nrow(data)*0.8),]
+        test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
+      } else {
+        train = data[1:floor(nrow(data)*0.8),]
+        test = data[(floor(nrow(data)*0.8)+1):nrow(data),]
+      }
+      return(list(train=train,test=test))
 
 }
 
+# Cross validation
+cross_validation_data <- function(data,
+                                  initialwindow = 0.7,
+                                  horizon = 12,
+                                  fixedWindow = TRUE) {
 
-standard_forecast <- function(data,start = ,cv_horizon = 12) {
+      if ("ts" %in% class(data)) {
+          return(timeslice <- createTimeSlices(1:length(data),initialWindow = length(data) * initialwindow, horizon = horizon, fixedWindow = fixedWindow))
+      }else {
+          return(timeslice <- createTimeSlices(1:nrow(data),initialWindow = nrow(data) * initialwindow, horizon = horizon, fixedWindow = fixedWindow))
+      }
+      return(timeslice)
+}
+
+# Access forecast package
+run_forecast <- function(train,test,FUN, name, timeslice ,...) {
+
+      model <- forecast::FUN(train, lambda = BoxCox.lambda(data), ...)
+
+      predictions <-forecast::forecast(model, h = length(test))
+
+      result <- forecast::accuracy(predictions, test) %>%
+                                      as.data.frame() %>%
+                                      rownames_to_column() %>%
+                                      mutate(model = name,
+                                             timeslice = timeslice)
+
+      return(list(predictions = predictions, result = result ))
+}
+
+automatic_forecast <- function(data,start = ,cv_horizon = 12) {
 
           #
 
-          if ("ts" %in% class(data)) {
-              return(timeslice <- createTimeSlices(1:length(data),initialWindow = length(data) * 0.7, horizon = 12, fixedWindow = TRUE))
-          }else {
-              return(timeslice <- createTimeSlices(1:nrow(data),initialWindow = nrow(data) * 0.7, horizon = 12, fixedWindow = TRUE))
-          }
+      trainslices <- cross_validation_data(data)$train
+      testslices <- cross_validation_data(data)$test
+
+      predictions <- data.frame()
+      results <- data.frame()
 
 
-          trainslices <- timeslice$train
-          testslices <- timeslice$test
+      # Cross validation time series
+      for(i in 1:length(timeslice)) {
 
-          predictions <- data.frame()
-          results <- data.frame()
+        ets <- run_forecast(train = data[trainslices[[i]]],
+                            test = data[testslices[[i]]],
+                            FUN = forecast::ets,
+                            )
 
+      }
 
-          # testing models on sample
-          model <- forecast::ets(data[trainslices[[1]]],lambda=BoxCox.lambda(data))
+      # Automatic Expoinential smoothing
+      model <- forecast::ets(train)
 
-          model2 <- forecast::auto.arima(data[trainslices[[1]]],lambda=BoxCox.lambda(data))
+      # Automatic Arima
+      model2 <- forecast::auto.arima(train)
 
-          predictions <- forecast::forecast(model,h=length(data[testslices[[1]]]))
+      # Automatic Exponential smoothing + ARMA + Box Cox transformations
+      model3 <- forecast::tbats(train)
 
-          predictions2 <- forecast::forecast(model2,h=length(data[testslices[[1]]]))
+      # Basic single hidden layer neural network
+      model4 <- forecast::nnetar(train)
 
-          result <- accuracy(predictions,data[testslices[[1]]])
-
-          result2 <- accuracy(predictions2,data[testslices[[1]]])
-
-
-
-          # Cross validation time series
-          for(i in 1:length(timeslice)) {
-
-            model <- forecast::ets(data[trainslices[[i]]])
-
-            predictions <- forecast::forecast(model,h=length(data[testslices[[i]]]))
+      # Simple Exponential Smoothing
+      model5 <- forecast::thetaf(train)
 
 
-          }
+      model6 <-
 
-          # Automatic Expoinential smoothing
-          model <- forecast::ets(train)
-
-          # Automatic Arima
-          model2 <- forecast::auto.arima(train)
-
-          # Automatic Exponential smoothing + ARMA + Box Cox transformations
-          model3 <- forecast::tbats(train)
-
-          # Basic single hidden layer neural network
-          model4 <- forecast::nnetar(train)
-
-          # Simple Exponential Smoothing
-          model5 <- forecast::thetaf(train)
-
-
-          model6 <-
-
-          return()
+      return()
 }
 
 
