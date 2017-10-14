@@ -20,6 +20,7 @@
 * auto.arima - Automatic Arima Model
 * NNetar -Single Layer Feed forward neural network
 * TBATS - ARMA, Exponential smoothinm seasonality, boxcox transformation
+* VAR - Vector Auto Regression
 
 
 3. Machine Learning
