@@ -51,12 +51,12 @@ cross_validation_data <- function(data,
                                   fixedWindow = TRUE) {
 
       if ("ts" %in% class(data)) {
-          return(timeslice <- createTimeSlices(1:length(data),
+          return(timeslice <- caret::createTimeSlices(1:length(data),
                                                initialWindow = length(data) * initialwindow,
                                                horizon = horizon,
                                                fixedWindow = fixedWindow))
       }else {
-          return(timeslice <- createTimeSlices(1:nrow(data),
+          return(timeslice <- caret::createTimeSlices(1:nrow(data),
                                                initialWindow = nrow(data) * initialwindow,
                                                horizon = horizon,
                                                fixedWindow = fixedWindow))
@@ -66,9 +66,9 @@ cross_validation_data <- function(data,
 
 
 # Access forecast package
-run_forecast <- function(train,test,FUN, name, timeslice ,...) {
+run_forecast <- function(train, test,FUN, name, timeslice ,...) {
 
-      model <- forecast::FUN(train, lambda = BoxCox.lambda(data), ...)
+      model <- forecast::FUN(train, lambda = forecast::BoxCox.lambda(data), ...)
 
       predictions <-forecast::forecast(model, h = length(test))
 
@@ -78,7 +78,7 @@ run_forecast <- function(train,test,FUN, name, timeslice ,...) {
                                       mutate(model = name,
                                              timeslice = timeslice)
 
-      return(list(predictions = predictions, result = result ))
+      return(list(predictions = predictions, result = result, model = model ))
 }
 
 
@@ -95,6 +95,7 @@ automatic_forecast <- function(data,start = , cv_horizon = 12) {
 
       predictions <- data.frame()
       results <- data.frame()
+      models <- data.frame()
 
 
       # Cross validation time series
@@ -125,14 +126,18 @@ automatic_forecast <- function(data,start = , cv_horizon = 12) {
                               timeslice = i)
 
           thetaf <- run_forecast(train = data[trainslices[[i]]],
-                                 test = data[testslices[[i]]],
-                                 FUN = thetaf,
-                                 name = 'thetaf',
-                                 timeslice = i)
+                              test = data[testslices[[i]]],
+                              FUN = thetaf,
+                              name = 'thetaf',
+                              timeslice = i)
 
           if(nrow(predictions) == 0) {
-
+               predictions <-bind_rows(eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
+          } else {
+               predictions <- bind_rows(predictions,eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
           }
+
+          if(nrow())
 
       }
 
