@@ -24,7 +24,7 @@ library(lubridate)
 library(parallel)
 
 
-# load test data of pharmaceutical products
+# load practice data of pharmaceutical products
 data <- a10
 
 
@@ -132,12 +132,16 @@ automatic_forecast <- function(data,start = , cv_horizon = 12) {
                               timeslice = i)
 
           if(nrow(predictions) == 0) {
-               predictions <-bind_rows(eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
+               predictions <- bind_rows(eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
           } else {
                predictions <- bind_rows(predictions,eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
           }
 
-          if(nrow())
+          if(nrow(results) == 0) {
+               results <- bind_rows(eta$result,arima$result, tbats$result, nnetar$result, theatf$result)
+          } else {
+               results <- bind_rows(results,eta$result,arima$result, tbats$result, nnetar$result, theatf$result)
+          }
 
       }
 
