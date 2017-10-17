@@ -22,6 +22,7 @@ library(tidyverse)
 library(zoo)
 library(lubridate)
 library(parallel)
+library(R6)
 
 
 # load practice data of pharmaceutical products
