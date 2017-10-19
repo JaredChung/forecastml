@@ -146,7 +146,7 @@ automatic_forecast <- function(data,start = , cv_horizon = 12) {
 
       }
 
-      return()
+      return(final_data <- list(results=results,predictions=predictions))
 }
 
 
