@@ -69,7 +69,7 @@ cross_validation_data <- function(data,
 # Access forecast package
 run_forecast <- function(train, test,FUN, name, timeslice ,...) {
 
-      model <- FUN(train, lambda = forecast::BoxCox.lambda(data), ...)
+      model <- FUN(train, ...)
 
       predictions <-forecast::forecast(model, h = length(test))
 
@@ -79,11 +79,11 @@ run_forecast <- function(train, test,FUN, name, timeslice ,...) {
                                       mutate(model = name,
                                              timeslice = timeslice)
 
-      return(list(predictions = predictions, result = result, model = model ))
+      return(list(predictions = as.data.frame(predictions), result = result, model = model ))
 }
 
 
-automatic_forecast <- function(data, cv_horizon = 12){
+automatic_forecast <- function(data, cv_horizon = 6, verbose = FALSE){
 
       #
 
@@ -102,19 +102,25 @@ automatic_forecast <- function(data, cv_horizon = 12){
       # Cross validation time series
       for(i in 1:length(trainslices)) {
 
-          print(sprintf("--------- Time slice %s",i))
+          if(verbose == TRUE) {
+            print(sprintf("--------- Time slice %s",i))
+            print(sprintf("--------- Train Length %s", length(trainslices[[i]])))
+            print(sprintf("--------- Test Length %s",length(testslices[[i]])))
+          }
 
           ets <- run_forecast(train = data[trainslices[[i]]],
                               test = data[testslices[[i]]],
                               FUN = forecast::ets,
                               name = 'ets',
-                              timeslice = i)
+                              timeslice = i,
+                              lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
 
           arima <- run_forecast(train = data[trainslices[[i]]],
                               test = data[testslices[[i]]],
                               FUN = forecast::auto.arima,
                               name = 'arima',
-                              timeslice = i)
+                              timeslice = i,
+                              lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
 
           tbats <- run_forecast(train = data[trainslices[[i]]],
                               test = data[testslices[[i]]],
@@ -126,7 +132,8 @@ automatic_forecast <- function(data, cv_horizon = 12){
                               test = data[testslices[[i]]],
                               FUN = forecast::nnetar,
                               name = 'nnetar',
-                              timeslice = i)
+                              timeslice = i,
+                              lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
 
           thetaf <- run_forecast(train = data[trainslices[[i]]],
                               test = data[testslices[[i]]],
@@ -134,16 +141,18 @@ automatic_forecast <- function(data, cv_horizon = 12){
                               name = 'thetaf',
                               timeslice = i)
 
+
+
           if(nrow(predictions) == 0) {
-               predictions <- bind_rows(eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
+               predictions <- bind_rows(ets$predictions,arima$predictions, tbats$predictions, nnetar$predictions, thetaf$predictions)
           } else {
-               predictions <- bind_rows(predictions,eta$predictions,arima$predictions, tbats$predictions, nnetar$predictions, theatf$predictions)
+               predictions <- bind_rows(predictions,ets$predictions,arima$predictions, tbats$predictions, nnetar$predictions, thetaf$predictions)
           }
 
           if(nrow(results) == 0) {
-               results <- bind_rows(eta$result,arima$result, tbats$result, nnetar$result, theatf$result)
+               results <- bind_rows(ets$result,arima$result, tbats$result, nnetar$result, thetaf$result)
           } else {
-               results <- bind_rows(results,eta$result,arima$result, tbats$result, nnetar$result, theatf$result)
+               results <- bind_rows(results,ets$result,arima$result, tbats$result, nnetar$result, thetaf$result)
           }
 
       }
@@ -152,10 +161,11 @@ automatic_forecast <- function(data, cv_horizon = 12){
 }
 
 
+forecast_plots <- function()
 
 
 
-forecast_result <- run_forecast(data)
+forecast_result <- automatic_forecast(data)
 
 
 
