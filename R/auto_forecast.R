@@ -161,7 +161,16 @@ automatic_forecast <- function(data, cv_horizon = 6, verbose = FALSE){
 }
 
 
-forecast_plots <- function()
+forecast_plots <- function(results) {
+
+
+      forecast_result %>% filter(rowname == "Test set") %>%
+                          select(-c(ACF1,ACF1,timeslice)) %>%
+                          group_by(model) %>%
+                          summarise()
+
+
+}
 
 
 
