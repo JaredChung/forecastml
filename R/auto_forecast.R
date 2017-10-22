@@ -164,10 +164,26 @@ automatic_forecast <- function(data, cv_horizon = 6, verbose = FALSE){
 forecast_plots <- function(results) {
 
 
-      forecast_result %>% filter(rowname == "Test set") %>%
+      forecast_result$results %>% filter(rowname == "Test set") %>%
                           select(-c(ACF1,ACF1,timeslice)) %>%
                           group_by(model) %>%
-                          summarise()
+                          summarise(avg_ME = mean(ME),
+                                    std_ME = sd(ME),
+                                    avg_RMSE = mean(RMSE),
+                                    std_RMSE = sd(RMSE),
+                                    avg_MAE = mean(MAE),
+                                    std_MAE = sd(MAE),
+                                    avg_MPE = mean(MPE),
+                                    std_MPE = sd(MPE),
+                                    avg_MAPE = mean(MAPE),
+                                    std_MAPE = sd(MAPE),
+                                    avg_MASE = mean(MASE),
+                                    std_MASE = sd(MASE)
+                                    ) %>%
+                          ggplot(aes(model,avg_RMSE,fill=model)) + geom_col()
+
+
+      forecast_result$predictions
 
 
 }
