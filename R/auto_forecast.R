@@ -83,7 +83,7 @@ run_forecast <- function(train, test,FUN, name, timeslice ,...) {
 }
 
 
-automatic_forecast <- function(data, cv_horizon = 6, verbose = FALSE){
+automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE){
 
       #
 
@@ -144,7 +144,7 @@ automatic_forecast <- function(data, cv_horizon = 6, verbose = FALSE){
 
 
           if(nrow(predictions) == 0) {
-               predictions <- bind_rows(ets$predictions,arima$predictions, tbats$predictions, nnetar$predictions, thetaf$predictions)
+               predictions <- as.data.frame(time = , ets = ets$predictions,arima = arima$predictions,tbats = tbats$predictions, nnetar = nnetar$predictions, thetaf = thetaf$predictions)
           } else {
                predictions <- bind_rows(predictions,ets$predictions,arima$predictions, tbats$predictions, nnetar$predictions, thetaf$predictions)
           }
@@ -190,12 +190,17 @@ forecast_plots <- function(results) {
 
 
 
-forecast_result <- automatic_forecast(data)
+forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
 
 
 
 
 
+#testing
+asdf <- ets(data)
+
+asdf2 <- forecast(asdf,h=6)
+asdf2 <- as.data.frame(asdf2)
 
 
 
