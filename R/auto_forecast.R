@@ -190,7 +190,6 @@ forecast_plots <- function(results) {
 }
 
 
-
 forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
 
 
