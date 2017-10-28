@@ -142,11 +142,17 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE){
                               timeslice = i)
 
 
+          print(ets$predictions)
+          print(arima$predictions)
+          print(tbats$predictions)
+          print(nnetar$predictions)
+          print(thetaf$predictions)
+
 
           if(nrow(predictions) == 0) {
-               predictions <- as.data.frame(time = rownames(ets$predictions), ets = ets$predictions,arima = arima$predictions,tbats = tbats$predictions, nnetar = nnetar$predictions, thetaf = thetaf$predictions)
+               predictions <- as.data.frame(list(time = rownames(ets$predictions), ets = ets$predictions[1], arima = arima$predictions[1],tbats = tbats$predictions[1], nnetar = nnetar$predictions[1], thetaf = thetaf$predictions))
           } else {
-               predictions <- bind_rows(predictions,as.data.frame(time = rownames(ets$predictions), ets = ets$predictions,arima = arima$predictions,tbats = tbats$predictions, nnetar = nnetar$predictions, thetaf = thetaf$predictions))
+               predictions <- bind_rows(predictions,as.data.frame(list(time = rownames(ets$predictions), ets = ets$predictions[1], arima = arima$predictions[1], tbats = tbats$predictions[1], nnetar = nnetar$predictions[1], thetaf = thetaf$predictions[1])))
           }
 
           if(nrow(results) == 0) {
@@ -194,12 +200,14 @@ forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
 
 
 
-
 #testing
 asdf <- ets(data)
 
 asdf2 <- forecast(asdf,h=1)
 asdf2 <- as.data.frame(asdf2)
+
+ffff <-as.data.frame(list(ets= asdf2$`Point Forecast`))
+
 
 asdf2[,1]
 
