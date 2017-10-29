@@ -25,10 +25,6 @@ library(parallel)
 library(R6)
 
 
-# load practice data of pharmaceutical products
-data <- a10
-
-
 # Standard 80/20 train test split
 train_test_data <- function(data) {
 
@@ -83,7 +79,7 @@ run_forecast <- function(train, test,FUN, name, timeslice ,...) {
 }
 
 
-automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE){
+automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_regressor =NULL){
 
       #
 
@@ -133,7 +129,8 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE){
                               FUN = forecast::nnetar,
                               name = 'nnetar',
                               timeslice = i,
-                              lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
+                              lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]),
+                              xreg = external_regressor)
 
           thetaf <- run_forecast(train = data[trainslices[[i]]],
                               test = data[testslices[[i]]],
@@ -142,17 +139,11 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE){
                               timeslice = i)
 
 
-          print(ets$predictions)
-          print(arima$predictions)
-          print(tbats$predictions)
-          print(nnetar$predictions)
-          print(thetaf$predictions)
-
 
           if(nrow(predictions) == 0) {
-               predictions <- as.data.frame(list(time = rownames(ets$predictions), ets = ets$predictions[1], arima = arima$predictions[1],tbats = tbats$predictions[1], nnetar = nnetar$predictions[1], thetaf = thetaf$predictions))
+               predictions <- as.data.frame(list(time = rownames(ets$predictions), ets = ets$predictions$`Point Forecast`, arima = arima$predictions$`Point Forecast`,tbats = tbats$predictions$`Point Forecast`, nnetar = nnetar$predictions$`Point Forecast`, thetaf = thetaf$predictions$`Point Forecast`))
           } else {
-               predictions <- bind_rows(predictions,as.data.frame(list(time = rownames(ets$predictions), ets = ets$predictions[1], arima = arima$predictions[1], tbats = tbats$predictions[1], nnetar = nnetar$predictions[1], thetaf = thetaf$predictions[1])))
+               predictions <- bind_rows(predictions,as.data.frame(list(time = rownames(ets$predictions), ets = ets$predictions$`Point Forecast`, arima = arima$predictions$`Point Forecast`, tbats = tbats$predictions$`Point Forecast`, nnetar = nnetar$predictions$`Point Forecast`, thetaf = thetaf$predictions$`Point Forecast`)))
           }
 
           if(nrow(results) == 0) {
@@ -194,6 +185,11 @@ forecast_plots <- function(results) {
 
 
 }
+
+
+# load practice data of pharmaceutical products
+data <- a10
+
 
 
 forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
