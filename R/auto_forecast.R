@@ -79,7 +79,7 @@ run_forecast <- function(train, test,FUN, name, timeslice ,...) {
 }
 
 
-automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_regressor =NULL){
+automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_regressor = NULL){
 
       #
 
@@ -89,6 +89,22 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
       testslices <- cross_validation_data(data,
                                           initialwindow = 0.7,
                                           horizon = cv_horizon)$test
+
+      if(!is.null(external_regressor)) {
+
+          trainslices_xreg <- cross_validation_data(external_regressor,
+                                               initialwindow = 0.7,
+                                               horizon = cv_horizon)$train
+          testslices_xreg <- cross_validation_data(external_regressor,
+                                              initialwindow = 0.7,
+                                              horizon = cv_horizon)$test
+
+      } else {
+
+          trainslices_xreg <- NULL
+          testslices_xreg <- NULL
+
+      }
 
       predictions <- data.frame()
       results <- data.frame()
@@ -137,6 +153,8 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
                               FUN = forecast::thetaf,
                               name = 'thetaf',
                               timeslice = i)
+
+          #t
 
 
 
