@@ -22,7 +22,7 @@ library(tidyverse)
 library(zoo)
 library(lubridate)
 library(parallel)
-library(R6)
+#library(R6) convert to R6 Class later
 
 
 # Standard 80/20 train test split
