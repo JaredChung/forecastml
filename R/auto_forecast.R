@@ -63,11 +63,15 @@ cross_validation_data <- function(data,
 
 
 # Access forecast package
-run_forecast <- function(train, test,FUN, name, timeslice ,...) {
+run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NULL, test_regressor=NULL,...) {
 
-      model <- FUN(train, ...)
-
-      predictions <-forecast::forecast(model, h = length(test))
+     if(is.null(train_regressor)) {
+        model <- FUN(train, ...)
+        predictions <-forecast::forecast(model, h = length(test))
+     } else {
+        model <- FUN(train, xreg = train_regressor , ...)
+        predictions <-forecast::forecast(model, h = length(test), xreg = test_regressor)
+     }
 
       result <- forecast::accuracy(predictions, test) %>%
                                       as.data.frame() %>%
@@ -146,7 +150,8 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
                               name = 'nnetar',
                               timeslice = i,
                               lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]),
-                              xreg = external_regressor)
+                              train_regressor = trainslices_xreg,
+                              test_regressor = testslices_xreg)
 
           thetaf <- run_forecast(train = data[trainslices[[i]]],
                               test = data[testslices[[i]]],
