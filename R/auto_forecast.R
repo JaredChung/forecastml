@@ -223,6 +223,7 @@ data <- a10
 
 
 
+
 forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
 
 
