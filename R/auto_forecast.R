@@ -160,7 +160,7 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
                               timeslice = i)
 
 
-          #export the file
+          #export the output
           if(nrow(predictions) == 0) {
                predictions <- as.data.frame(list(time = rownames(ets$predictions),
                                                  ets = ets$predictions$`Point Forecast`,
@@ -211,7 +211,7 @@ forecast_plots <- function(results) {
                           ggplot(aes(model,avg_RMSE,fill=model)) + geom_col()
 
 
-      forecast_result$predictions %>% gather()
+      forecast_result$predictions %>% gather(model,amount,-time ) %>% View()
 
 
 
