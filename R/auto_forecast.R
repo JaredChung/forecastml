@@ -94,6 +94,7 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
                                           initialwindow = 0.7,
                                           horizon = cv_horizon)$test
 
+      # Check if there are external regressors
       if(!is.null(external_regressor)) {
 
           trainslices_xreg <- cross_validation_data(external_regressor,
