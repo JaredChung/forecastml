@@ -52,7 +52,7 @@ cross_validation_data <- function(data,
                                                initialWindow = length(data) * initialwindow,
                                                horizon = horizon,
                                                fixedWindow = fixedWindow))
-      }else {
+      } else {
           return(timeslice <- caret::createTimeSlices(1:nrow(data),
                                                initialWindow = nrow(data) * initialwindow,
                                                horizon = horizon,
@@ -85,8 +85,7 @@ run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NUL
 
 automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_regressor = NULL){
 
-      #
-
+      # Split Dataset into cross validation slices
       trainslices <- cross_validation_data(data,
                                            initialwindow = 0.7,
                                            horizon = cv_horizon)$train
