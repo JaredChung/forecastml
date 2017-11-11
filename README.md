@@ -5,7 +5,10 @@
 
 * Forecast
 * Dpylr
-* 
+* Caret
+* H2o
+* MXnet
+* Xgboost
 
 
 1. <b>Preprocessing</b>
@@ -48,7 +51,7 @@
 
 5. Benchmarking
 
-
+* Kaggle Competition
 
 6. Reporting
 
