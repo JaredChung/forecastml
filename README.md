@@ -9,6 +9,8 @@
 * H2o
 * MXnet
 * Xgboost
+* light gbm
+* lubridate
 
 
 1. <b>Preprocessing</b>
