@@ -185,7 +185,11 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
 
       }
 
-      return(list(results=results,predictions=predictions))
+      output <- list(results=results,predictions=predictions)
+
+      class(output) <- c(class(output),"forecastml")
+
+      return(output)
 }
 
 
