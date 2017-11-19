@@ -192,8 +192,17 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
       return(output)
 }
 
+plot <- function(forecast) {
 
-forecast_plots <- function(results) {
+      UseMethod("plot",object = "forecastml")
+
+}
+
+plot.default <- function(forecast) {
+
+}
+
+plot.forecastml <- function(results) {
 
 
       forecast_result$results %>% filter(rowname == "Test set") %>%
