@@ -193,20 +193,28 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
       return(output)
 }
 
+
+#------------------------------------
+# Plot Method
+#---------------------------------
+
+
 plot <- function(forecast) {
 
-      UseMethod("plot",object = "forecastml")
+      UseMethod("plot",forecast)
 
 }
 
 plot.default <- function(forecast) {
 
+      message("Error unable to deal with this object")
+      return(forecast)
 }
 
-plot.forecastml <- function(results) {
+plot.forecastml <- function(forecast) {
 
 
-      forecast_result$results %>% filter(rowname == "Test set") %>%
+      plot <- forecast$results %>% filter(rowname == "Test set") %>%
                           select(-c(ACF1,ACF1,timeslice)) %>%
                           group_by(model) %>%
                           summarise(avg_ME = mean(ME),
@@ -225,11 +233,14 @@ plot.forecastml <- function(results) {
                           ggplot(aes(model,avg_RMSE,fill=model)) + geom_col()
 
 
-      forecast_result$predictions %>% gather(model,amount,-time ) %>% View()
+      #forecast_result$predictions %>% gather(model,amount,-time ) %>% View()
 
+      return(plot)
 
 
 }
+
+
 
 
 # load practice data of pharmaceutical products
