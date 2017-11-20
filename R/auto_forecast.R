@@ -65,6 +65,7 @@ cross_validation_data <- function(data,
 # Access forecast package
 run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NULL, test_regressor=NULL,...) {
 
+     # check if there is external regressors
      if(is.null(train_regressor)) {
         model <- FUN(train, ...)
         predictions <-forecast::forecast(model, h = length(test))
