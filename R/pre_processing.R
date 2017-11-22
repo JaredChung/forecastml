@@ -13,8 +13,13 @@
 #'
 #' @example
 
+preprocess <- function(data) {
 
-preprocess <- function() {
+      require(lubridate)
+      require(dplyr)
+
+      data <- data %>%
+
 
 }
 
