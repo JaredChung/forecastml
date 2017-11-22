@@ -13,14 +13,27 @@
 #'
 #' @example
 
-preprocess <- function(data) {
+
+
+feature_extracter <- function(data) {
 
       require(lubridate)
       require(dplyr)
+      require(zoo)
 
-      data <- data %>%
+      if(class(data) == "ts") {
+            date <- as.Date(yearmon(time(data)))
+      }
+
+      date <- date %>%
 
 
 }
 
+
+# Test
+library(fpp)
+
+data <- a10
+date =
 
