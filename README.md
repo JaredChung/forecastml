@@ -10,6 +10,7 @@
 * MXnet
 * Xgboost
 * light gbm
+* catboost
 * lubridate
 
 
