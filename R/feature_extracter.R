@@ -3,7 +3,7 @@
 # Project automatic forecast ML
 # Jared Chung
 # 23/08/2017
-# file: Time_Series_preprocessing
+# file: feature_extracter
 # ========================================== #
 
 #' Forecast using standard forecasting
@@ -22,12 +22,12 @@ feature_extracter <- function(data) {
       require(zoo)
 
       if(class(data) == "ts") {
-            date <- as.Date(yearmon(time(data)))
+            data <- as.Date(yearmon(time(data)))
       }
 
-      date <- date %>%
+      #data <- data %>%
 
-
+      return(data)
 }
 
 
@@ -35,5 +35,8 @@ feature_extracter <- function(data) {
 library(fpp)
 
 data <- a10
+
+feature
+
 date =
 
