@@ -22,21 +22,22 @@ feature_extracter <- function(data) {
       require(zoo)
 
       if(class(data) == "ts") {
-            data <- as.Date(yearmon(time(data)))
+          data <- as.Date(yearmon(time(data)))
       }
 
-      #data <- data %>%
+      data <- data %>% mutate(month = month(data),
+                              day = )
 
       return(data)
 }
 
 
 # Test
-library(fpp)
+library(fpp2)
 
 data <- a10
 
-feature
+data_extract <- feature_extracter(data)
 
 date =
 
