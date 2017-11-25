@@ -22,11 +22,14 @@ feature_extracter <- function(data) {
       require(zoo)
 
       if(class(data) == "ts") {
-          data <- as.Date(yearmon(time(data)))
+          data <- as.data.frame(list(date =as.Date(yearmon(time(data)))))
       }
 
-      data <- data %>% mutate(month = month(data),
-                              day = )
+
+      data <- data %>% mutate(month = month(date),
+                              day = day(date),
+                              year = year(date),
+                              lag1 = lag(date))
 
       return(data)
 }
