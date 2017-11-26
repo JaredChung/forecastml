@@ -17,30 +17,44 @@
 # Test
 library(fpp2)
 
-feature_extracter <- function(data, date_col = FALSE, num_lag = FALSE) {
+feature_extracter <- function(data, date_col = FALSE, num_lag = 2) {
 
       require(lubridate)
       require(dplyr)
       require(zoo)
 
       if(class(data) == "ts") {
-          data <- as.data.frame(list(date =as.Date(yearmon(time(data)))))
-          data$value <- as.data.frame(list(value=as.data.frame(data)))
+          new_data <- as.data.frame(list(date =as.Date(yearmon(time(data)))))
+          new_data <- cbind(new_data,as.data.frame(list(value=data)))
+          new_data$value <- as.numeric(new_data$value)
 
-      } else
+      }
 
-      data <- data %>% mutate(month = month(date),
+      # Build date features
+      new_data <- new_data %>% mutate(month = month(date),
                               day = day(date),
                               year = year(date))
-                   %>% mutate( lag1 = )
 
+      # Create lag Features
 
-      return(data)
+      for (i in seq(num_lag)) {
+            name = paste("lag",i,sep="")
+            new_data[name] <- lag(new_data$value,i)
+      }
+
+      return(new_data)
 }
 
 
 data <- a10
 
-data_extract <- feature_extracter(data)
+data_extract <- feature_extracter(data, num_lag =2)
 
-data
+
+
+
+
+
+
+
+
