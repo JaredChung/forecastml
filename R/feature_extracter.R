@@ -42,6 +42,8 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2) {
             new_data[name] <- lag(new_data$value,i)
       }
 
+
+
       return(new_data)
 }
 
