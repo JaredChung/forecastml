@@ -22,6 +22,7 @@ library(tidyverse)
 library(zoo)
 library(lubridate)
 library(parallel)
+source(feature_extracter)
 #library(R6) convert to R6 Class later ....
 
 
@@ -252,6 +253,7 @@ data <- a10
 
 
 forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
+
 
 
 
