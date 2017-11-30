@@ -20,18 +20,17 @@ library(tidyverse)
 library(h2o)
 
 
+###################################
+# H2o
+####################################
+
 forecast_h2o <- function(data) {
 
     h2o.init(strict_version_check = FALSE)
 
-    airquality$Year <- rep(2017,nrow(airquality))
-    airquality$Date <- as.Date(with(airquality, paste(Year, Month, Day,sep=“-“)), “%Y-%m-%d”)
-    # sort the dataset
-    airquality <- airquality[order(as.Date(airquality$Date, format=“%m/%d/%Y”)),]
-    # convert the dataset to unix time before converting to an H2OFrame
-    airquality$Date <- as.numeric(as.POSIXct(airquality$Date, origin=“1970-01-01”, tz = “GMT”))
     # convert to an h2o dataframe
-    air_h2o <- as.h2o(airquality)
+    data_h2o <- as.h2o(data)
+
     # specify the features and the target column
     target <- ‘Ozone’
     features <- c(“Solar.R”, “Wind”, “Temp”,  “Month”, “Day”, “Date”)
