@@ -16,8 +16,9 @@
 
 # Test
 library(fpp2)
+library(zoo)
 
-feature_extracter <- function(data, date_col = FALSE, num_lag = 2) {
+feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3) {
 
       require(lubridate)
       require(dplyr)
@@ -42,7 +43,12 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2) {
             new_data[name] <- lag(new_data$value,i)
       }
 
+      # Create Rolling Features
 
+      new_data['rollmean'] <- zoo::rollmean(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
+      new_data['rollmax'] <- zoo::rollmax(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
+      new_data['rollsum'] <- zoo::rollsum(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
+      new_data['rollmedian'] <- zoo::rollmedian(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
 
       return(new_data)
 }
@@ -50,7 +56,7 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2) {
 
 data <- a10
 
-data_extract <- feature_extracter(data, num_lag =2)
+data_extract <- feature_extracter(data, num_lag =2, num_roll = 3)
 
 
 
