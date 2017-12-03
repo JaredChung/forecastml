@@ -112,6 +112,7 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
 
       }
 
+      # To store data
       predictions <- data.frame()
       results <- data.frame()
       models <- data.frame()

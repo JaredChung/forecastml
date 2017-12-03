@@ -14,8 +14,7 @@
 #' @example
 
 
-# Test
-library(fpp2)
+
 library(zoo)
 
 feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3) {
@@ -24,6 +23,7 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
       require(dplyr)
       require(zoo)
 
+      # Check if data is "ts" object
       if(class(data) == "ts") {
           new_data <- as.data.frame(list(date =as.Date(yearmon(time(data)))))
           new_data <- cbind(new_data,as.data.frame(list(value=data)))
@@ -58,10 +58,14 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
 
       # Create Holiday Days (UNDER CONSTRUCITON)
 
+
       return(new_data)
 }
 
 
+
+# Test
+library(fpp2)
 data <- a10
 
 data_extract <- feature_extracter(data, num_lag =2, num_roll = 3)
