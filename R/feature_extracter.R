@@ -31,7 +31,7 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
 
       }
 
-      # Build date features
+      # Build date features (e.g year)
       new_data <- new_data %>% mutate(month = month(date),
                               day = day(date),
                               year = year(date))
@@ -45,10 +45,12 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
 
       # Create Rolling Features
 
+
       new_data['rollmean'] <- zoo::rollmean(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
       new_data['rollmax'] <- zoo::rollmax(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
       new_data['rollsum'] <- zoo::rollsum(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
       new_data['rollmedian'] <- zoo::rollmedian(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
+      new_data['rollsd'] <- zoo::rollapply(data = new_data$value, width = num_roll, FUN=sd,fill= NA,na.pad=FALSE, align='right')
 
       return(new_data)
 }
