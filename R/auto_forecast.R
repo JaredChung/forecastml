@@ -197,6 +197,12 @@ automatic_forecast <- function(data, cv_horizon = 1, verbose = FALSE, external_r
 
 
 #------------------------------------
+# Forecast Method
+#------------------------------------
+
+
+
+#------------------------------------
 # Plot Method
 #---------------------------------
 
