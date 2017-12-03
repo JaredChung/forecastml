@@ -34,7 +34,11 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
       # Build date features (e.g year)
       new_data <- new_data %>% mutate(month = month(date),
                               day = day(date),
-                              year = year(date))
+                              year = year(date),
+                              weeks = weeks(date),
+                              mday = mday(date),
+                              wday = wday(date),
+                              yday = yday(date))
 
       # Create lag Features
 
@@ -51,6 +55,8 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
       new_data['rollsum'] <- zoo::rollsum(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
       new_data['rollmedian'] <- zoo::rollmedian(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
       new_data['rollsd'] <- zoo::rollapply(data = new_data$value, width = num_roll, FUN=sd,fill= NA,na.pad=FALSE, align='right')
+
+      # Create Holiday Days (UNDER CONSTRUCITON)
 
       return(new_data)
 }
