@@ -18,7 +18,9 @@
 library(zoo)
 library(parallel)
 
-feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3) {
+#fit extracter
+
+fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3) {
 
       require(lubridate)
       require(dplyr)
@@ -58,10 +60,23 @@ feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3)
 
       # Create Holiday Days (UNDER CONSTRUCITON)
 
+      # Symmetry_looking
+
+      mean_difference = abs(mean(new_data$value)-median(new_data$value))
+      max_min_difference = max(new_data$value) - min(new_data$value)
+
+      for (n in new_data$values) {
+
+      }
 
       return(new_data)
 }
 
+#process feature extractor
+
+process_feature_extractor <- function(x) {
+
+}
 
 
 # Test
