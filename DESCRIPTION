@@ -10,6 +10,7 @@ dpylr
 forecast
 ggplot2
 zoo
+lubridate
 
 License: MIT + file LICENSE
 Encoding: UTF-8
