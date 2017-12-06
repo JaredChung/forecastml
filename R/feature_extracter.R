@@ -20,7 +20,7 @@ library(parallel)
 
 #fit extracter
 
-fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3) {
+fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3, fourier_K = 3) {
 
       require(lubridate)
       require(dplyr)
@@ -60,20 +60,25 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
 
       # Create Holiday Days (UNDER CONSTRUCITON)
 
-      # Symmetry_looking
+      # Symmetry_looking (UNDER CONSTRUCITON)
 
-      mean_difference = abs(mean(new_data$value)-median(new_data$value))
-      max_min_difference = max(new_data$value) - min(new_data$value)
-
-      for (n in new_data$values) {
-
-            if (n > )
-
-      }
-
+      # mean_difference = abs(mean(new_data$value)-median(new_data$value))
+      # max_min_difference = max(new_data$value) - min(new_data$value)
       #
+      # for (n in seq(0.0,0.95,0.05)) {
+      #
+      #       if (mean_difference < n * max_min_difference)
+      #
+      # }
+      #
+      # #
+      #
+      # return(new_data)
 
-      return(new_data)
+      # Fourier Features
+
+      new_data['fourier'] <- fourier(new_data$value,K = fourier_K)
+
 }
 
 #process feature extractor
@@ -87,7 +92,7 @@ process_feature_extractor <- function(x) {
 library(fpp2)
 data <- a10
 
-data_extract <- feature_extracter(data, num_lag =2, num_roll = 3)
+data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3,fourier_K =3)
 
 
 
