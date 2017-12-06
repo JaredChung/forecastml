@@ -24,7 +24,7 @@ library(h2o)
 # H2o
 ####################################
 
-forecast_h2o <- function(data) {
+forecast_h2o <- function(data, target = 'none') {
 
     h2o.init(strict_version_check = FALSE)
 
@@ -32,8 +32,8 @@ forecast_h2o <- function(data) {
     data_h2o <- as.h2o(data)
 
     # specify the features and the target column
-    target <- ‘Ozone’
-    features <- c(“Solar.R”, “Wind”, “Temp”,  “Month”, “Day”, “Date”)
+    features <- data[,-target]
+
     # split dataset in ~half which if you round up is 77 rows (train on the first half of the dataset)
     train_1 <- air_h2o[1:ceiling(dim(air_h2o)[1]/2),]
     # calculate 14 days in unix time: one day is 86400 seconds in unix time (aka posix time, epoch time)
