@@ -67,7 +67,11 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
 
       for (n in new_data$values) {
 
+            if (n > )
+
       }
+
+      #
 
       return(new_data)
 }
