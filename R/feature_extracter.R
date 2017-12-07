@@ -92,7 +92,7 @@ process_feature_extractor <- function(x) {
 library(fpp2)
 data <- a10
 
-data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3,fourier_K =3)
+data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3,fourier_K =2)
 
 
 
