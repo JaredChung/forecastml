@@ -19,6 +19,26 @@
 library(tidyverse)
 library(h2o)
 
+# Cross validation
+cross_validation_data <- function(data,
+                                  initialwindow = 0.7,
+                                  horizon = 12,
+                                  fixedWindow = TRUE) {
+
+  if ("ts" %in% class(data)) {
+    return(timeslice <- caret::createTimeSlices(1:length(data),
+                                                initialWindow = length(data) * initialwindow,
+                                                horizon = horizon,
+                                                fixedWindow = fixedWindow))
+  } else {
+    return(timeslice <- caret::createTimeSlices(1:nrow(data),
+                                                initialWindow = nrow(data) * initialwindow,
+                                                horizon = horizon,
+                                                fixedWindow = fixedWindow))
+  }
+  return(timeslice)
+}
+
 
 ###################################
 # H2o
