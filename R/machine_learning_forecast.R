@@ -18,27 +18,8 @@
 
 library(tidyverse)
 library(h2o)
-
-# Cross validation
-cross_validation_data <- function(data,
-                                  initialwindow = 0.7,
-                                  horizon = 12,
-                                  fixedWindow = TRUE) {
-
-  if ("ts" %in% class(data)) {
-    return(timeslice <- caret::createTimeSlices(1:length(data),
-                                                initialWindow = length(data) * initialwindow,
-                                                horizon = horizon,
-                                                fixedWindow = fixedWindow))
-  } else {
-    return(timeslice <- caret::createTimeSlices(1:nrow(data),
-                                                initialWindow = nrow(data) * initialwindow,
-                                                horizon = horizon,
-                                                fixedWindow = fixedWindow))
-  }
-  return(timeslice)
-}
-
+source("R/utils.R")
+source("R/feature_extracter.R")
 
 ###################################
 # H2o
@@ -93,6 +74,11 @@ forecast_h2o <- function(data, target = 'none') {
                    print(paste(‘shape of new training dataset: ‘,dim(train_1)[1],sep=” “))
                    counter <<- counter + 1
     }
+
+
+###################################
+# Caret
+####################################
 
 
 
