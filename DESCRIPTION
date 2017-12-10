@@ -11,6 +11,7 @@ forecast
 ggplot2
 zoo
 lubridate
+h2o
 
 License: MIT + file LICENSE
 Encoding: UTF-8
