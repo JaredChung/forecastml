@@ -24,9 +24,53 @@ source("R/feature_extracter.R")
 # H2o
 ####################################
 
-forecast_h2o <- function(data, target = 'none') {
+forecast_h2o <- function(data, target = 'none', external_regressors) {
 
     h2o.init(strict_version_check = FALSE)
+
+    trainslices <- cross_validation_data(data,
+                                       initialwindow = 0.7,
+                                       horizon = cv_horizon)$train
+    testslices <- cross_validation_data(data,
+                                      initialwindow = 0.7,
+                                      horizon = cv_horizon)$test
+    if(!is.null(external_regressor)) {
+
+      trainslices_xreg <- cross_validation_data(external_regressor,
+                                                initialwindow = 0.7,
+                                                horizon = cv_horizon)$train
+      testslices_xreg <- cross_validation_data(external_regressor,
+                                               initialwindow = 0.7,
+                                               horizon = cv_horizon)$test
+
+    } else {
+
+      trainslices_xreg <- NULL
+      testslices_xreg <- NULL
+
+    }
+
+    # To store data
+    predictions <- data.frame()
+    results <- data.frame()
+    models <- data.frame()
+
+
+    # Cross validation time series
+    for(i in 1:length(trainslices)) {
+
+      if(verbose == TRUE) {
+        print(sprintf("--------- Time slice %s",i))
+        print(sprintf("--------- Train Length %s", length(trainslices[[i]])))
+        print(sprintf("--------- Test Length %s",length(testslices[[i]])))
+      }
+
+      ets <- run_forecast(train = data[trainslices[[i]]],
+                          test = data[testslices[[i]]],
+                          FUN = forecast::ets,
+                          name = 'ets',
+                          timeslice = i,
+                          lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
 
     # convert to an h2o dataframe
     data_h2o <- as.h2o(data)
