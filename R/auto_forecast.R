@@ -50,14 +50,15 @@ run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NUL
 automatic_forecast <- function(data,
                                cv_horizon = 1,
                                verbose = FALSE,
+                               intitial_window = 0.7,
                                external_regressor = NULL){
 
       # Split Dataset into cross validation slices
       trainslices <- cross_validation_data(data,
-                                           initialwindow = 0.7,
+                                           initialwindow = intitial_window,
                                            horizon = cv_horizon)$train
       testslices <- cross_validation_data(data,
-                                          initialwindow = 0.7,
+                                          initialwindow = intitial_window,
                                           horizon = cv_horizon)$test
 
       # Check if there are external regressors

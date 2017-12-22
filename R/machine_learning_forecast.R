@@ -24,15 +24,18 @@ source("R/feature_extracter.R")
 # H2o
 ####################################
 
-forecast_h2o <- function(data, target = 'none', external_regressors) {
+forecast_h2o <- function(data,
+                         target = 'none',
+                         intitial_window = 0.7,
+                         external_regressors) {
 
     h2o.init(strict_version_check = FALSE)
 
     trainslices <- cross_validation_data(data,
-                                       initialwindow = 0.7,
+                                       initialwindow = intitial_window,
                                        horizon = cv_horizon)$train
     testslices <- cross_validation_data(data,
-                                      initialwindow = 0.7,
+                                      initialwindow = intitial_window,
                                       horizon = cv_horizon)$test
     if(!is.null(external_regressor)) {
 
