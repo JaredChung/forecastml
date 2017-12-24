@@ -2,7 +2,7 @@
 # Project automatic forecast ML
 # Jared Chung
 # 23/08/2017
-# file: Standard forecasting techniques
+# file: utility
 # ========================================== #
 
 #' Forecast using standard forecasting
