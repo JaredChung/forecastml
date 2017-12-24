@@ -25,16 +25,22 @@ source("R/feature_extracter.R")
 # H2o
 ####################################
 
-forecast_h2o <- function(data,
+forecast_h2o <- function(train,
+                         test,
                          target = 'none',
-                         intitial_window = 0.7,
-                         external_regressors) {
+                         num_thread = -1) {
 
-    h2o.init(strict_version_check = FALSE)
+    h2o.init(strict_version_check = FALSE, nthreads = num_thread)
 
+    if(is.ts(train)){
+        train <- as.dataframe(date = as.data.frame(list(date = as.Date(time(train)))), value = as.data.frame(train))
+        test <- as.dataframe(date = as.data.frame(list(date = as.Date(time(test)))), value = as.data.frame(test))
+    }
 
     # convert to an h2o dataframe
-    data_h2o <- as.h2o(data)
+    train_h2o <- as.h2o(train)
+
+    test_h2o <- as.h2o(test)
 
     # specify the features and the target column
     features <- data[,-target]
@@ -91,6 +97,46 @@ forecast_h2o <- function(data,
 
 
 # Testing
+
+data <- a10
+
+
+cv_horizon <- 1
+intitial_window <- 0.7
+
+trainslices <- cross_validation_data(data,
+                                     initialwindow = intitial_window,
+                                     horizon = cv_horizon)$train
+testslices <- cross_validation_data(data,
+                                    initialwindow = intitial_window,
+                                    horizon = cv_horizon)$test
+
+
+# Check if there are external regressors
+if(!is.null(external_regressor)) {
+
+  trainslices_xreg <- cross_validation_data(external_regressor,
+                                            initialwindow = 0.7,
+                                            horizon = cv_horizon)$train
+  testslices_xreg <- cross_validation_data(external_regressor,
+                                           initialwindow = 0.7,
+                                           horizon = cv_horizon)$test
+
+} else {
+
+  trainslices_xreg <- NULL
+  testslices_xreg <- NULL
+
+}
+
+# To store data
+predictions <- data.frame()
+results <- data.frame()
+models <- data.frame()
+
+
+# Cross validation time series
+for(i in 1:length(trainslices)) {
 
 
 
