@@ -6,11 +6,11 @@ Description:
 Depends: 
 R (>= 3.4.0)
 Imports:
-dpylr
-forecast
-ggplot2
-zoo
-lubridate
+dpylr,
+forecast,
+ggplot2,
+zoo,
+lubridate,
 h2o
 
 License: MIT + file LICENSE
