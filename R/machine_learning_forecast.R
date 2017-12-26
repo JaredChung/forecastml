@@ -33,17 +33,19 @@ forecast_h2o <- function(train,
 
   h2o.init(strict_version_check = FALSE, nthreads = num_thread)
 
-  if(is.ts(train)){
-      train <- as.data.frame(list(date = as.data.frame(as.Date(time(train))), value = as.data.frame(train)))
-      test <- as.dataframe(date = as.data.frame(list(date = as.Date(time(test)))), value = as.data.frame(test))
-  }
+  # if(is.ts(train)){
+  #     train <- data.frame(list(date = as.Date(time(train)),
+  #                                 value = as.numeric(train)))
+  #     test <- data.frame(list(date = as.Date(time(test)),
+  #                             value = as.numeric(test)))
+  # }
 
   # convert to an h2o dataframe
   train_h2o <- as.h2o(train)
 
   test_h2o <- as.h2o(test)
 
-  y_index <- "value"
+  y_index <- 'value'
 
   x_index <- setdiff(names(train), y_index)
 
@@ -106,8 +108,6 @@ forecast_h2o <- function(train,
 data <- a10
 
 
-
-
 cv_horizon <- 1
 intitial_window <- 0.7
 
@@ -138,10 +138,6 @@ testslices <- cross_validation_data(data,
 
 
 
-#check
-
-glm_h2o <- forecast_h2o(train = data[trainslices[[1]]],
-                        test = data[testslices[[1]]])
 
 
 # To store data
@@ -150,16 +146,26 @@ results <- data.frame()
 models <- data.frame()
 
 
+data <- data.frame(list(date = as.Date(time(data)),
+                         value = as.numeric(data)))
+
+
 # Cross validation time series
 for(i in 1:length(trainslices)) {
 
-  glm_h2o <- forecast_h2o(train = data[trainslices[[i]]],
-                          test = data[testslices[[i]]],
+  glm_h2o <- forecast_h2o(train = data[trainslices[[i]],],
+                          test = data[testslices[[i]],],
                             )
 
 
+}
 
 
+
+#check
+
+glm_h2o <- forecast_h2o(train = data[trainslices[[1]]],
+                        test = data[testslices[[1]]])
 
 
 
