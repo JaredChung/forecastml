@@ -157,6 +157,11 @@ for(i in 1:length(trainslices)) {
                           test = data[testslices[[i]],],
                             )
 
+  rmse_valid <- h2o.rmse(gbm_model, valid=T)
+  print(paste(‘your new rmse value on the validation set is: ‘, rmse_valid,‘ for fold #: ‘, counter, sep=“”))
+
+
+
 
 }
 
