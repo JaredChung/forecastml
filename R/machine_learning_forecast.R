@@ -25,40 +25,6 @@ source("R/feature_extracter.R")
 # H2o
 ####################################
 
-forecast_h2o <- function(train,
-                         test,
-                         target = 'none',
-                         num_thread = -1,
-                         seed = 42) {
-
-  # if(is.ts(train)){
-  #     train <- data.frame(list(date = as.Date(time(train)),
-  #                                 value = as.numeric(train)))
-  #     test <- data.frame(list(date = as.Date(time(test)),
-  #                             value = as.numeric(test)))
-  # }
-
-  # convert to an h2o dataframe
-  train_h2o <- as.h2o(train)
-
-  test_h2o <- as.h2o(test)
-
-  y_index <- 'value'
-
-  x_index <- setdiff(names(train), y_index)
-
-  glm_h2o_model <- h2o::h2o.glm(x = x_index,
-                                y = y_index,
-                                training_frame = train_h2o,
-                                validation_frame = test_h2o,
-                                seed = seed
-                                )
-
-
-
-  return(glm_h2o_model)
-}
-
 
   # iterate over the process of testing on the next two weeks
   # combine the train_1 and test_1 datasets after each loop
@@ -93,8 +59,10 @@ forecast_h2o <- function(train,
   #                counter <<- counter + 1
   # }
 
-run_forecast_h2o <- function(data) {
-
+forecast_h2o <- function(data,
+                         external_regressors = NULL,
+                         seed = 42,
+                         ) {
 
   cv_horizon <- 1
   intitial_window <- 0.7
@@ -106,23 +74,23 @@ run_forecast_h2o <- function(data) {
                                       initialwindow = intitial_window,
                                       horizon = cv_horizon)$test
 
-  #
-  # # Check if there are external regressors
-  # if(!is.null(external_regressor)) {
-  #
-  #   trainslices_xreg <- cross_validation_data(external_regressor,
-  #                                             initialwindow = 0.7,
-  #                                             horizon = cv_horizon)$train
-  #   testslices_xreg <- cross_validation_data(external_regressor,
-  #                                            initialwindow = 0.7,
-  #                                            horizon = cv_horizon)$test
-  #
-  # } else {
-  #
-  #   trainslices_xreg <- NULL
-  #   testslices_xreg <- NULL
-  #
-  # }
+
+  # Check if there are external regressors
+  if(!is.null(external_regressor)) {
+
+    trainslices_xreg <- cross_validation_data(external_regressor,
+                                              initialwindow = 0.7,
+                                              horizon = cv_horizon)$train
+    testslices_xreg <- cross_validation_data(external_regressor,
+                                             initialwindow = 0.7,
+                                             horizon = cv_horizon)$test
+
+  } else {
+
+    trainslices_xreg <- NULL
+    testslices_xreg <- NULL
+
+  }
 
 
 
@@ -133,18 +101,31 @@ run_forecast_h2o <- function(data) {
   results <- data.frame()
   models <- data.frame()
 
-
+  # Convert TS object into dataframe
   data <- data.frame(list(date = as.Date(time(data)),
                           value = as.numeric(data)))
 
-  h2o.init(strict_version_check = FALSE, nthreads = -1, )
+  h2o.init(strict_version_check = FALSE, nthreads = -1 )
 
   # Cross validation time series
   for(i in 1:length(trainslices)) {
 
-    glm_h2o <- forecast_h2o(train = data[trainslices[[i]],],
-                            test = data[testslices[[i]],],
-    )
+
+    train_h2o <- h2o::as.h2o(data[trainslices[[i]],])
+
+    test_h2o <- h2o::as.h2o(data[testslices[[i]],])
+
+    y_index <- 'value'
+
+    x_index <- setdiff(names(train), y_index)
+
+
+    glm_h2o <- h2o::h2o.glm(x = x_index,
+                            y = y_index,
+                            training_frame = train_h2o,
+                            validation_frame = test_h2o,
+                            seed = seed,
+                            family = "gaussian")
 
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
@@ -154,7 +135,6 @@ run_forecast_h2o <- function(data) {
   }
 
 
-
 }
 
 
@@ -162,7 +142,7 @@ run_forecast_h2o <- function(data) {
 
 # Run
 
-run_forecast_h2o(a10)
+result <- run_forecast_h2o(a10)
 
 
 #check
