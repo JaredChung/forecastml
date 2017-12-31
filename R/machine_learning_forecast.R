@@ -25,26 +25,6 @@ source("R/feature_extracter.R")
 # H2o
 ####################################
 
-
-  # iterate over the process of testing on the next two weeks
-  # combine the train_1 and test_1 datasets after each loop
-  # while (dim(train_1)[1] < dim(air_h2o)[1]){
-  #   # get new dataset two weeks out
-  #   # take the last date in Date column and add 14 days to i
-  #   new_end_date <- train_1[nrow(train_1),]$Date + add_14_days
-  #   last_current_date <- train_1[nrow(train_1),]$Date
-  #
-  #   # slice with a boolean mask
-  #   mask <- air_h2o[,“Date”] > last_current_date
-  #   temp_df <- air_h2o[mask,]
-  #   mask_2 <- air_h2o[,“Date”] < new_end_date
-  #
-  #   # multiply the mask dataframes to get the intersection
-  #   final_mask <- mask*mask_2
-  #   test_1 <- air_h2o[final_mask,]
-  #
-  #   # build a basic gbm using the default parameters
-  #   gbm_model <- h2o.gbm(x = features, y = target, training_frame = train_1, validation_frame = test_1, seed = 1234)
   #
   #   # print the number of rows used for the test_1 dataset
   #   print(paste(‘number of rows used in test set: ‘, dim(test_1)[1], sep=” “))
@@ -61,8 +41,7 @@ source("R/feature_extracter.R")
 
 forecast_h2o <- function(data,
                          external_regressors = NULL,
-                         seed = 42,
-                         ) {
+                         seed = 42) {
 
   cv_horizon <- 1
   intitial_window <- 0.7
@@ -75,7 +54,7 @@ forecast_h2o <- function(data,
                                       horizon = cv_horizon)$test
 
 
-  # Check if there are external regressors
+  #Check if there are external regressors
   if(!is.null(external_regressor)) {
 
     trainslices_xreg <- cross_validation_data(external_regressor,
@@ -93,9 +72,6 @@ forecast_h2o <- function(data,
   }
 
 
-
-
-
   # To store data
   predictions <- data.frame()
   results <- data.frame()
@@ -105,7 +81,7 @@ forecast_h2o <- function(data,
   data <- data.frame(list(date = as.Date(time(data)),
                           value = as.numeric(data)))
 
-  h2o.init(strict_version_check = FALSE, nthreads = -1 )
+  init <- h2o.init(strict_version_check = FALSE, nthreads = -1)
 
   # Cross validation time series
   for(i in 1:length(trainslices)) {
@@ -117,7 +93,7 @@ forecast_h2o <- function(data,
 
     y_index <- 'value'
 
-    x_index <- setdiff(names(train), y_index)
+    x_index <- setdiff(names(train_h2o), y_index)
 
 
     glm_h2o <- h2o::h2o.glm(x = x_index,
@@ -131,10 +107,7 @@ forecast_h2o <- function(data,
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
-
   }
-
-
 }
 
 
@@ -142,8 +115,11 @@ forecast_h2o <- function(data,
 
 # Run
 
-result <- run_forecast_h2o(a10)
+data <- a10
 
+result <- forecast_h2o(data)
+
+#x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3, fourier_K = 4)
 
 #check
 

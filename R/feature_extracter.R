@@ -26,10 +26,13 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   require(dplyr)
   require(zoo)
 
+  # Fourier Features
+
+  new_data['fourier'] <- fourier(new_data$value, K = 3)
+
   if(class(data) == "ts") {
-    new_data <- as.data.frame(list(date =as.Date(yearmon(time(data)))))
-    new_data <- cbind(new_data,as.data.frame(list(value=data)))
-    new_data$value <- as.numeric(new_data$value)
+    data <- data.frame(list(date = as.Date(time(data)),
+                            value = as.numeric(data)))
 
   }
 
@@ -37,7 +40,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   new_data <- new_data %>% mutate(month = month(date),
                           day = day(date),
                           year = year(date),
-                          weeks = weeks(date),
+                          #weeks = weeks(date),
                           mday = mday(date),
                           wday = wday(date),
                           yday = yday(date))
@@ -75,9 +78,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   #
   # return(new_data)
 
-  # Fourier Features
 
-  new_data['fourier'] <- fourier(new_data$value,K = fourier_K)
 
 }
 
@@ -89,10 +90,10 @@ process_feature_extractor <- function(x) {
 
 
 # Test
-#library(fpp2)
-#data <- a10
+library(fpp2)
+data <- a10
 
-#data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3,fourier_K =2)
+data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3, fourier_K = 5)
 
 
 
