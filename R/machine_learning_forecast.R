@@ -108,6 +108,10 @@ forecast_h2o <- function(data,
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
   }
+
+  h2o.shutdown(prompt=FALSE)
+
+  return()
 }
 
 
