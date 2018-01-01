@@ -175,14 +175,15 @@ automatic_forecast <- function(data,
 
 plot <- function(forecast) {
 
-      UseMethod("plot",forecast)
+  UseMethod("plot")
 
 }
 
 plot.default <- function(forecast) {
 
-      message("Error unable to deal with this object")
-      return(forecast)
+  message("Error unable to deal with this object")
+  return(forecast)
+
 }
 
 plot.forecastml <- function(forecast) {

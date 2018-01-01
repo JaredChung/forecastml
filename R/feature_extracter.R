@@ -14,9 +14,6 @@
 #' @example
 
 
-#tempory import
-library(zoo)
-library(parallel)
 
 #fit extracter
 
@@ -26,12 +23,9 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   require(dplyr)
   require(zoo)
 
-  # Fourier Features
-
-  new_data['fourier'] <- fourier(new_data$value, K = 3)
 
   if(class(data) == "ts") {
-    data <- data.frame(list(date = as.Date(time(data)),
+    new_data <- data.frame(list(date = as.Date(time(data)),
                             value = as.numeric(data)))
 
   }
@@ -42,7 +36,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
                           year = year(date),
                           #weeks = weeks(date),
                           mday = mday(date),
-                          wday = wday(date),
+                          wday = wday(date), # remove 1 level for "dummy variable trap?
                           yday = yday(date))
 
   # Create lag Features
@@ -61,6 +55,13 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   new_data['rollmedian'] <- zoo::rollmedian(x = new_data$value , k = num_roll,fill= NA,na.pad=FALSE,align='right')
   new_data['rollsd'] <- zoo::rollapply(data = new_data$value, width = num_roll, FUN=sd,fill= NA,na.pad=FALSE, align='right')
 
+
+  # Fourier Features
+
+  fourier_terms <- forecast::fourier(data, K = frequency(data)/2)
+
+  new_data <- cbind(new_data,as.data.frame(fourier_terms))
+
   # Create Holiday Days (UNDER CONSTRUCITON)
 
   # Symmetry_looking (UNDER CONSTRUCITON)
@@ -76,9 +77,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   #
   # #
   #
-  # return(new_data)
-
-
+  return(new_data)
 
 }
 
@@ -93,7 +92,7 @@ process_feature_extractor <- function(x) {
 library(fpp2)
 data <- a10
 
-data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3, fourier_K = 5)
+data_extract <- fit_feature_extracter(data, num_lag =2, num_roll = 3, fourier_K = 6)
 
 
 
