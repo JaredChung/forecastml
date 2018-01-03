@@ -40,7 +40,7 @@ source("R/feature_extracter.R")
   # }
 
 forecast_h2o <- function(data,
-                         external_regressors = NULL,
+                         external_regressor = NULL,
                          seed = 42) {
 
   cv_horizon <- 1
@@ -58,10 +58,10 @@ forecast_h2o <- function(data,
   if(!is.null(external_regressor)) {
 
     trainslices_xreg <- cross_validation_data(external_regressor,
-                                              initialwindow = 0.7,
+                                              initialwindow = intitial_window,
                                               horizon = cv_horizon)$train
     testslices_xreg <- cross_validation_data(external_regressor,
-                                             initialwindow = 0.7,
+                                             initialwindow = intitial_window,
                                              horizon = cv_horizon)$test
 
   } else {
@@ -109,9 +109,9 @@ forecast_h2o <- function(data,
     print(sprintf("RMSE %s", rmse_valid))
   }
 
+
   h2o.shutdown(prompt=FALSE)
 
-  return()
 }
 
 
@@ -121,9 +121,15 @@ forecast_h2o <- function(data,
 
 data <- a10
 
-result <- forecast_h2o(data)
+x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
 
-#x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3, fourier_K = 4)
+result <- forecast_h2o(data,
+                       external_regressor = x_reg)
+
+
+
+
+
 
 #check
 

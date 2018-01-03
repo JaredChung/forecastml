@@ -65,10 +65,10 @@ automatic_forecast <- function(data,
   if(!is.null(external_regressor)) {
 
     trainslices_xreg <- cross_validation_data(external_regressor,
-                                         initialwindow = 0.7,
+                                         initialwindow = intitial_window,
                                          horizon = cv_horizon)$train
     testslices_xreg <- cross_validation_data(external_regressor,
-                                        initialwindow = 0.7,
+                                        initialwindow = intitial_window,
                                         horizon = cv_horizon)$test
 
   } else {

@@ -83,7 +83,9 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
 
 #process feature extractor
 
-process_feature_extractor <- function(x) {
+forecast_feature_extractor <- function(h = 12) {
+
+
 
 }
 
