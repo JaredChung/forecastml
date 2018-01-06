@@ -119,6 +119,26 @@ forecast_h2o <- function(data,
                               )
 
 
+    automl_models_h2o <- h2o.automl(x = x,
+                                y = y,
+                                training_frame = train_h2o,
+                                #validation_frame = valid_h2o,
+                                leaderboard_frame = test_h2o,
+                                max_runtime_secs = 3300,
+                                stopping_metric = "AUTO")
+
+    m1 <- h2o.deeplearning(
+                          model_id="dl_model_first",
+                          training_frame=train,
+                          validation_frame=valid,   ## validation dataset: used for scoring and early stopping
+                          x=predictors,
+                          y=response,
+                          #activation="Rectifier",  ## default
+                          #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
+                          epochs=1,
+                          variable_importances=T    ## not enabled by default
+    )
+
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
     print(sprintf("--------- Time slice %s",i),sep="")
