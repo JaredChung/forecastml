@@ -103,19 +103,21 @@ forecast_h2o <- function(data,
                             seed = seed,
                             family = "gaussian")
 
-    glm_h2o <- h2o::h2o.randomForest(x = x_index,
+    rf_h2o <- h2o::h2o.randomForest(x = x_index,
                             y = y_index,
                             training_frame = train_h2o,
                             validation_frame = test_h2o,
                             seed = seed,
                             ntrees = 200)
 
-    glm_h2o <- h2o::h2o.gbm(x = x_index,
+    gbm_h2o <- h2o::h2o.gbm(x = x_index,
                             y = y_index,
                             training_frame = train_h2o,
                             validation_frame = test_h2o,
-                            seed = seed
-                            )
+                            seed = seed,
+                            ntrees = 200
+                              )
+
 
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
