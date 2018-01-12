@@ -87,7 +87,13 @@ forecast_h2o <- function(data,
   for(i in 1:length(trainslices)) {
 
 
-    train_h2o <- h2o::as.h2o(data[trainslices[[i]],])
+    #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
+
+    if()
+      train_h2o  <- cbind(data[trainslices[[i]],],external_regressor[trainslices_xreg[[i]],])
+
+
+    train_h2o <- h2o::as.h2o(train_data)
 
     test_h2o <- h2o::as.h2o(data[testslices[[i]],])
 
