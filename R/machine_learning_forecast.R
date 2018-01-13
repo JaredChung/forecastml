@@ -102,12 +102,18 @@ forecast_h2o <- function(data,
     x_index <- setdiff(names(train_h2o), y_index)
 
 
+    alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
+    hyper_parameters = list(alpha = alpha_opts)
+
     glm_h2o <- h2o::h2o.glm(x = x_index,
                             y = y_index,
                             training_frame = train_h2o,
                             validation_frame = test_h2o,
                             seed = seed,
-                            family = "gaussian")
+                            family = "gaussian",
+                            lambda_search = TRUE,
+                            standardize = TRUE,
+                            hyper_params = hyper_parameters)
 
     rf_h2o <- h2o::h2o.randomForest(x = x_index,
                             y = y_index,
@@ -179,6 +185,26 @@ glm_h2o <- forecast_h2o(train = data[trainslices[[1]]],
                         test = data[testslices[[1]]])
 
 
+
+# GBM hyperparamters
+gbm_params1 <- list(learn_rate = c(0.01, 0.1),
+                    max_depth = c(3, 5, 9),
+                    sample_rate = c(0.8, 1.0),
+                    col_sample_rate = c(0.2, 0.5, 1.0))
+
+# Train and validate a grid of GBMs
+gbm_grid1 <- h2o.grid("gbm", x = x, y = y,
+                      grid_id = "gbm_grid1",
+                      training_frame = train,
+                      validation_frame = valid,
+                      ntrees = 100,
+                      seed = 1,
+                      hyper_params = gbm_params1)
+
+# Get the grid results, sorted by AUC
+gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
+                             sort_by = "auc",
+                             decreasing = TRUE)
 
 
 ###################################
