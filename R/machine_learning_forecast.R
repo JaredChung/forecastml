@@ -54,24 +54,6 @@ forecast_h2o <- function(data,
                                       horizon = cv_horizon)$test
 
 
-  #Check if there are external regressors
-  if(!is.null(external_regressor)) {
-
-    trainslices_xreg <- cross_validation_data(external_regressor,
-                                              initialwindow = intitial_window,
-                                              horizon = cv_horizon)$train
-    testslices_xreg <- cross_validation_data(external_regressor,
-                                             initialwindow = intitial_window,
-                                             horizon = cv_horizon)$test
-
-  } else {
-
-    trainslices_xreg <- NULL
-    testslices_xreg <- NULL
-
-  }
-
-
   # To store data
   predictions <- data.frame()
   results <- data.frame()
@@ -81,6 +63,8 @@ forecast_h2o <- function(data,
   data <- data.frame(list(date = as.Date(time(data)),
                           value = as.numeric(data)))
 
+  data <- cbind(data,external_regressor)
+
   init <- h2o.init(strict_version_check = FALSE, nthreads = -1)
 
   # Cross validation time series
@@ -89,11 +73,7 @@ forecast_h2o <- function(data,
 
     #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
 
-    if()
-      train_h2o  <- cbind(data[trainslices[[i]],],external_regressor[trainslices_xreg[[i]],])
-
-
-    train_h2o <- h2o::as.h2o(train_data)
+    train_h2o <- h2o::as.h2o(data[trainslices[[i]],])
 
     test_h2o <- h2o::as.h2o(data[testslices[[i]],])
 
@@ -113,7 +93,8 @@ forecast_h2o <- function(data,
                             family = "gaussian",
                             lambda_search = TRUE,
                             standardize = TRUE,
-                            hyper_params = hyper_parameters)
+                            hyper_params = hyper_parameters,
+                              )
 
     rf_h2o <- h2o::h2o.randomForest(x = x_index,
                             y = y_index,
