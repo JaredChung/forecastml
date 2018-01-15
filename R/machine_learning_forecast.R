@@ -25,19 +25,6 @@ source("R/feature_extracter.R")
 # H2o
 ####################################
 
-  #
-  #   # print the number of rows used for the test_1 dataset
-  #   print(paste(‘number of rows used in test set: ‘, dim(test_1)[1], sep=” “))
-  #   print(paste(‘number of rows used in train set: ‘, dim(train_1)[1], sep=” “))
-  #   # print the validation metrics
-  #   rmse_valid <- h2o.rmse(gbm_model, valid=T)
-  #   print(paste(‘your new rmse value on the validation set is: ‘, rmse_valid,‘ for fold #: ‘, counter, sep=“”))
-  #
-  #                # create new training frame
-  #                train_1 <- h2o.rbind(train_1,test_1)
-  #                print(paste(‘shape of new training dataset: ‘,dim(train_1)[1],sep=” “))
-  #                counter <<- counter + 1
-  # }
 
 forecast_h2o <- function(data,
                          external_regressor = NULL,
@@ -94,7 +81,7 @@ forecast_h2o <- function(data,
                             lambda_search = TRUE,
                             standardize = TRUE,
                             hyper_params = hyper_parameters,
-                              )
+                            nfolds = 5)
 
     rf_h2o <- h2o::h2o.randomForest(x = x_index,
                             y = y_index,
@@ -120,7 +107,7 @@ forecast_h2o <- function(data,
                                 max_runtime_secs = 3300,
                                 stopping_metric = "AUTO")
 
-    m1 <- h2o.deeplearning(
+    mlp_h2o <- h2o.deeplearning(
                           model_id="dl_model_first",
                           training_frame=train,
                           validation_frame=valid,   ## validation dataset: used for scoring and early stopping
@@ -130,12 +117,16 @@ forecast_h2o <- function(data,
                           #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
                           epochs=1,
                           variable_importances=T    ## not enabled by default
+
     )
 
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
+
+
+
   }
 
 
@@ -160,7 +151,18 @@ result <- forecast_h2o(data,
 
 
 
-#check
+#TESTING
+
+cv_horizon <- 1
+intitial_window <- 0.7
+
+trainslices <- cross_validation_data(data,
+                                     initialwindow = intitial_window,
+                                     horizon = cv_horizon)$train
+testslices <- cross_validation_data(data,
+                                    initialwindow = intitial_window,
+                                    horizon = cv_horizon)$test
+
 
 glm_h2o <- forecast_h2o(train = data[trainslices[[1]]],
                         test = data[testslices[[1]]])
