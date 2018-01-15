@@ -154,7 +154,8 @@ automatic_forecast <- function(data,
 
   }
 
-  output <- list(results=results,predictions=predictions)
+  output <- list(results=results,
+                 predictions=predictions)
 
   class(output) <- c(class(output),"forecastml")
 
@@ -162,11 +163,19 @@ automatic_forecast <- function(data,
 }
 
 
+
+print.forecastml <- function(x,...) {
+    print()
+}
+
 #------------------------------------
 # Forecast Method
 #------------------------------------
 
+forecast.forecastml <- function(x) {
 
+
+}
 
 #------------------------------------
 # Plot Method
