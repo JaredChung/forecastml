@@ -18,6 +18,7 @@
 library(tidyverse)
 library(h2o)
 library(fpp2)
+library(data.table)
 source("R/utils.R")
 source("R/feature_extracter.R")
 
@@ -42,9 +43,9 @@ forecast_h2o <- function(data,
 
 
   # To store data
-  predictions <- data.frame()
-  results <- data.frame()
-  models <- data.frame()
+  predictions <- matrix(nrow=length(timeslices),ncol = 4)
+  results <- data.table()
+  models <- data.table()
 
   # Convert TS object into dataframe
   data <- data.frame(list(date = as.Date(time(data)),
@@ -128,10 +129,11 @@ forecast_h2o <- function(data,
 
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
+
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
 
-    #predictions <- data.frame()
+    predictions[i,]
     #results <- data.frame()
     #models <- data.frame()
 
