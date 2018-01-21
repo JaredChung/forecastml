@@ -69,6 +69,7 @@ forecast_h2o <- function(data,
     x_index <- setdiff(names(train_h2o), y_index)
 
 
+    # Elastic Net
     alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
     hyper_parameters = list(alpha = alpha_opts)
 
@@ -83,6 +84,7 @@ forecast_h2o <- function(data,
                             hyper_params = hyper_parameters,
                             nfolds = 5)
 
+    #
     rf_h2o <- h2o::h2o.randomForest(x = x_index,
                             y = y_index,
                             training_frame = train_h2o,
@@ -131,6 +133,9 @@ forecast_h2o <- function(data,
 
 
   h2o.shutdown(prompt=FALSE)
+
+
+  return()
 
 }
 
@@ -195,6 +200,9 @@ gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
 ####################################
 
 
+caret_forecast <- function {
+
+}
 
 
 
