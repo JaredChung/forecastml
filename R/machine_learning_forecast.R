@@ -50,7 +50,11 @@ forecast_h2o <- function(data,
   data <- data.frame(list(date = as.Date(time(data)),
                           value = as.numeric(data)))
 
+  external_regressor$date <- NULL
+  external_regressor$value <- NULL
+
   data <- cbind(data,external_regressor)
+
 
   init <- h2o.init(strict_version_check = FALSE, nthreads = -1)
 
@@ -81,7 +85,7 @@ forecast_h2o <- function(data,
                             family = "gaussian",
                             lambda_search = TRUE,
                             standardize = TRUE,
-                            hyper_params = hyper_parameters,
+                            #hyper_params = hyper_parameters,
                             nfolds = 5)
 
     #
@@ -101,20 +105,20 @@ forecast_h2o <- function(data,
                               )
 
 
-    automl_models_h2o <- h2o.automl(x = x,
-                                y = y,
-                                training_frame = train_h2o,
-                                #validation_frame = valid_h2o,
-                                leaderboard_frame = test_h2o,
-                                max_runtime_secs = 3300,
-                                stopping_metric = "AUTO")
+    # automl_models_h2o <- h2o.automl(x = x,
+    #                             y = y,
+    #                             training_frame = train_h2o,
+    #                             validation_frame = test_h2o,
+    #                             #leaderboard_frame = test_h2o,
+    #                             max_runtime_secs = 3300,
+    #                             stopping_metric = "AUTO")
 
     mlp_h2o <- h2o.deeplearning(
                           model_id="dl_model_first",
-                          training_frame=train,
-                          validation_frame=valid,   ## validation dataset: used for scoring and early stopping
-                          x=predictors,
-                          y=response,
+                          x = x_index,
+                          y = y_index,
+                          training_frame=train_h2o,
+                          validation_frame=test_h2o,   ## validation dataset: used for scoring and early stopping
                           #activation="Rectifier",  ## default
                           #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
                           epochs=1,
@@ -127,6 +131,9 @@ forecast_h2o <- function(data,
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
 
+    #predictions <- data.frame()
+    #results <- data.frame()
+    #models <- data.frame()
 
 
   }
@@ -135,7 +142,7 @@ forecast_h2o <- function(data,
   h2o.shutdown(prompt=FALSE)
 
 
-  return()
+  return(rmse_valid)
 
 }
 
@@ -169,7 +176,7 @@ testslices <- cross_validation_data(data,
                                     horizon = cv_horizon)$test
 
 
-glm_h2o <- forecast_h2o(train = data[trainslices[[1]]],
+h2o_result <- forecast_h2o(train = data[trainslices[[1]]],
                         test = data[testslices[[1]]])
 
 
