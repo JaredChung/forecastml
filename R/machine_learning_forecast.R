@@ -129,7 +129,8 @@ forecast_h2o <- function(data,
 
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
-    results[i, ]
+    results[i, 1] <- h2o.rmse(glm_h2o, valid=T)
+    results[]
 
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
