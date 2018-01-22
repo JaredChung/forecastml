@@ -129,11 +129,12 @@ forecast_h2o <- function(data,
 
 
     rmse_valid <- h2o.rmse(glm_h2o, valid=T)
+    results[i, ]
 
     print(sprintf("--------- Time slice %s",i),sep="")
     print(sprintf("RMSE %s", rmse_valid))
 
-    predictions[i,]
+    predictions[i,1] <-
     #results <- data.frame()
     #models <- data.frame()
 
