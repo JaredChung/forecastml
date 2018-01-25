@@ -43,8 +43,8 @@ forecast_h2o <- function(data,
 
 
   # To store data
-  predictions <- matrix(nrow=length(timeslices),ncol = 4)
-  results <- data.table()
+  predictions <- matrix(nrow=length(trainslices),ncol = 4)
+  results <- matrix(nrow=length(trainslices),ncol = 4)
   models <- data.table()
 
   # Convert TS object into dataframe
@@ -124,8 +124,7 @@ forecast_h2o <- function(data,
                           #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
                           epochs=1,
                           variable_importances=T    ## not enabled by default
-
-    )
+                          )
 
     results[i, 1] <- h2o.rmse(glm_h2o, valid=T)
     results[i, 2] <- h2o.rmse(rf_h2o, valid=T)
@@ -133,20 +132,21 @@ forecast_h2o <- function(data,
     results[i, 4] <- h2o.rmse(mlp_h2o, valid=T)
 
     print(sprintf("--------- Time slice %s",i),sep="")
-    print(sprintf("RMSE %s", rmse_valid))
+    #print(sprintf("RMSE %s", rmse_valid))
 
-    predictions[i,1] <-
+    #predictions[i,1] <-
     #results <- data.frame()
     #models <- data.frame()
-
-
   }
 
 
   h2o.shutdown(prompt=FALSE)
 
+  results <- as.data.frame(results)
 
-  return(rmse_valid)
+  colnames(results) <- c("glm","rf","gbm","mlp")
+
+  return(results)
 
 }
 
@@ -159,8 +159,7 @@ data <- a10
 
 x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
 
-result <- forecast_h2o(data,
-                       external_regressor = x_reg)
+result <- forecast_h2o(data, external_regressor = x_reg)
 
 
 
