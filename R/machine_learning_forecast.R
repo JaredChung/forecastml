@@ -166,7 +166,7 @@ result <- forecast_h2o(data, external_regressor = x_reg)
 
 
 
-#TESTING
+#TESTING h2o
 
 data <- a10
 
@@ -206,9 +206,32 @@ gbm_grid1 <- h2o.grid("gbm", x = "date", y = "value",
 
 # Get the grid results, sorted by AUC
 gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
-                             sort_by = "auc",
-                             decreasing = TRUE)
+                             sort_by = "rmse",
+                             decreasing = FALSE)
 
+
+
+
+alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
+hyper_parameters = list(alpha = alpha_opts)
+
+glm_h2o <- h2o::h2o.glm(x = x_index,
+                        y = y_index,
+                        training_frame = train_h2o,
+                        validation_frame = test_h2o,
+                        seed = seed,
+                        family = "gaussian",
+                        lambda_search = TRUE,
+                        standardize = TRUE,
+                        #hyper_params = hyper_parameters,
+                        nfolds = 5)
+
+#
+rf_h2o <- h2o::h2o.randomForest(x = x_index,
+                                y = y_index,
+                                training_frame = train_h2o,
+                                validation_frame = test_h2o,
+                                seed = seed,
 
 h2o.shutdown()
 
