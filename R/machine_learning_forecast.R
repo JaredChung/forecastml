@@ -146,7 +146,7 @@ forecast_h2o <- function(data,
 
   colnames(results) <- c("glm","rf","gbm","mlp")
 
-  return(results)
+  return(list(results=results))
 
 }
 
@@ -168,6 +168,8 @@ result <- forecast_h2o(data, external_regressor = x_reg)
 
 #TESTING
 
+data <- a10
+
 cv_horizon <- 1
 intitial_window <- 0.7
 
@@ -179,10 +181,12 @@ testslices <- cross_validation_data(data,
                                     horizon = cv_horizon)$test
 
 
-h2o_result <- forecast_h2o(train = data[trainslices[[1]]],
-                        test = data[testslices[[1]]])
+h2o.init()
 
+data <- data.frame(list(date = as.Date(time(data)),
+                        value = as.numeric(data)))
 
+data <- as.h2o(data)
 
 # GBM hyperparamters
 gbm_params1 <- list(learn_rate = c(0.01, 0.1),
@@ -191,19 +195,22 @@ gbm_params1 <- list(learn_rate = c(0.01, 0.1),
                     col_sample_rate = c(0.2, 0.5, 1.0))
 
 # Train and validate a grid of GBMs
-gbm_grid1 <- h2o.grid("gbm", x = x, y = y,
+gbm_grid1 <- h2o.grid("gbm", x = "date", y = "value",
                       grid_id = "gbm_grid1",
-                      training_frame = train,
-                      validation_frame = valid,
+                      training_frame = data[trainslices[[1]],],
+                      validation_frame = data[testslices[[1]],],
                       ntrees = 100,
                       seed = 1,
                       hyper_params = gbm_params1)
+
 
 # Get the grid results, sorted by AUC
 gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
                              sort_by = "auc",
                              decreasing = TRUE)
 
+
+h2o.shutdown()
 
 ###################################
 # Caret
