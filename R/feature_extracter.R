@@ -75,8 +75,9 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   #
   # }
   #
-  # #
-  #
+
+  prcomp_features
+
   return(new_data)
 
 }

@@ -210,6 +210,9 @@ gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
                              decreasing = FALSE)
 
 
+best_gbm_model_id <- gbm_gridperf1@model_ids[[1]]
+best_gbm <- h2o.getModel(best_gbm_model_id)
+
 
 
 alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
@@ -247,13 +250,24 @@ caret_forecast <- function {
 
 
 
+###################################
+# Mxnet
+####################################
+
+
+
+
+###################################
+# lightgbm
+####################################
 
 
 
 
 
-
-
+###################################
+# catboost
+####################################
 
 
 

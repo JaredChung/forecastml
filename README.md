@@ -5,13 +5,14 @@
 
 * Forecast
 * Dpylr
+* lubridate
 * Caret
 * H2o
 * MXnet
 * Xgboost
 * light gbm
 * catboost
-* lubridate
+
 
 
 1. <b>Preprocessing</b>
@@ -20,7 +21,7 @@
 * Fourier Transformation
 * Calender Normalisation
 * Date feature engineering
-
+* Principle Component features
 
 
 2. <b>Forecast Techniques</b>
