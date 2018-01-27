@@ -27,24 +27,15 @@ source("R/feature_extracter.R")
 ####################################
 
 
-forecast_h2o <- function(data,
+forecast_h2o <- function(train,
+                         test,
                          external_regressor = NULL,
                          seed = 42) {
 
-  cv_horizon <- 1
-  intitial_window <- 0.7
-
-  trainslices <- cross_validation_data(data,
-                                       initialwindow = intitial_window,
-                                       horizon = cv_horizon)$train
-  testslices <- cross_validation_data(data,
-                                      initialwindow = intitial_window,
-                                      horizon = cv_horizon)$test
-
 
   # To store data
-  predictions <- matrix(nrow=length(trainslices),ncol = 4)
   results <- matrix(nrow=length(trainslices),ncol = 4)
+  predictions <- matrix(nrow=length(trainslices),ncol = 4)
   models <- data.table()
 
   # Convert TS object into dataframe
@@ -59,90 +50,88 @@ forecast_h2o <- function(data,
 
   init <- h2o.init(strict_version_check = FALSE, nthreads = -1)
 
-  # Cross validation time series
-  for(i in 1:length(trainslices)) {
+  #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
+
+  train_h2o <- h2o::as.h2o(data[trainslices[[i]],])
+
+  test_h2o <- h2o::as.h2o(data[testslices[[i]],])
+
+  y_index <- 'value'
+
+  x_index <- setdiff(names(train_h2o), y_index)
 
 
-    #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
+  # Elastic Net
+  alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
+  hyper_parameters = list(alpha = alpha_opts)
 
-    train_h2o <- h2o::as.h2o(data[trainslices[[i]],])
-
-    test_h2o <- h2o::as.h2o(data[testslices[[i]],])
-
-    y_index <- 'value'
-
-    x_index <- setdiff(names(train_h2o), y_index)
-
-
-    # Elastic Net
-    alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
-    hyper_parameters = list(alpha = alpha_opts)
-
-    glm_h2o <- h2o::h2o.glm(x = x_index,
-                            y = y_index,
-                            training_frame = train_h2o,
-                            validation_frame = test_h2o,
-                            seed = seed,
-                            family = "gaussian",
-                            lambda_search = TRUE,
-                            standardize = TRUE,
-                            #hyper_params = hyper_parameters,
-                            nfolds = 5)
-
-    #
-    rf_h2o <- h2o::h2o.randomForest(x = x_index,
-                            y = y_index,
-                            training_frame = train_h2o,
-                            validation_frame = test_h2o,
-                            seed = seed,
-                            ntrees = 200)
-
-    gbm_h2o <- h2o::h2o.gbm(x = x_index,
-                            y = y_index,
-                            training_frame = train_h2o,
-                            validation_frame = test_h2o,
-                            seed = seed,
-                            ntrees = 200
-                              )
-
-
-    # automl_models_h2o <- h2o.automl(x = x,
-    #                             y = y,
-    #                             training_frame = train_h2o,
-    #                             validation_frame = test_h2o,
-    #                             #leaderboard_frame = test_h2o,
-    #                             max_runtime_secs = 3300,
-    #                             stopping_metric = "AUTO")
-
-    mlp_h2o <- h2o.deeplearning(
-                          model_id="dl_model_first",
-                          x = x_index,
+  glm_h2o <- h2o::h2o.glm(x = x_index,
                           y = y_index,
-                          training_frame=train_h2o,
-                          validation_frame=test_h2o,   ## validation dataset: used for scoring and early stopping
-                          #activation="Rectifier",  ## default
-                          #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
-                          epochs=1,
-                          variable_importances=T    ## not enabled by default
-                          )
+                          training_frame = train_h2o,
+                          validation_frame = test_h2o,
+                          seed = seed,
+                          family = "gaussian",
+                          lambda_search = TRUE,
+                          standardize = TRUE,
+                          #hyper_params = hyper_parameters,
+                          nfolds = 5)
 
-    results[i, 1] <- h2o.rmse(glm_h2o, valid=T)
-    results[i, 2] <- h2o.rmse(rf_h2o, valid=T)
-    results[i, 3] <- h2o.rmse(gbm_h2o, valid=T)
-    results[i, 4] <- h2o.rmse(mlp_h2o, valid=T)
+  # Random Forest
+  rf_h2o <- h2o::h2o.randomForest(x = x_index,
+                          y = y_index,
+                          training_frame = train_h2o,
+                          validation_frame = test_h2o,
+                          seed = seed,
+                          ntrees = 200)
 
-    print(sprintf("--------- Time slice %s",i),sep="")
-    #print(sprintf("RMSE %s", rmse_valid))
+  # Gradient Boosted Machine
+  gbm_h2o <- h2o::h2o.gbm(x = x_index,
+                          y = y_index,
+                          training_frame = train_h2o,
+                          validation_frame = test_h2o,
+                          seed = seed,
+                          ntrees = 200
+                            )
 
-    #predictions[i,1] <-
-    #results <- data.frame()
-    #models <- data.frame()
-  }
 
+  # automl_models_h2o <- h2o.automl(x = x,
+  #                             y = y,
+  #                             training_frame = train_h2o,
+  #                             validation_frame = test_h2o,
+  #                             #leaderboard_frame = test_h2o,
+  #                             max_runtime_secs = 3300,
+  #                             stopping_metric = "AUTO")
+
+  # Multi Layer Perceptron
+  mlp_h2o <- h2o.deeplearning(
+                        model_id="dl_model_first",
+                        x = x_index,
+                        y = y_index,
+                        training_frame=train_h2o,
+                        validation_frame=test_h2o,   ## validation dataset: used for scoring and early stopping
+                        #activation="Rectifier",  ## default
+                        #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
+                        epochs=1,
+                        variable_importances=T    ## not enabled by default
+                        )
+
+  results[i, 1] <- h2o.rmse(glm_h2o, valid=T)
+  results[i, 2] <- h2o.rmse(rf_h2o, valid=T)
+  results[i, 3] <- h2o.rmse(gbm_h2o, valid=T)
+  results[i, 4] <- h2o.rmse(mlp_h2o, valid=T)
+
+  print(sprintf("--------- Time slice %s",i),sep="")
+  #print(sprintf("RMSE %s", rmse_valid))
+
+  #predictions[i,1] <-
+  #results <- data.frame()
+  #models <- data.frame()
 
   h2o.shutdown(prompt=FALSE)
 
   results <- as.data.frame(results)
+
+
 
   colnames(results) <- c("glm","rf","gbm","mlp")
 
@@ -213,6 +202,7 @@ gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
 best_gbm_model_id <- gbm_gridperf1@model_ids[[1]]
 best_gbm <- h2o.getModel(best_gbm_model_id)
 
+model_param <- as.data.frame(best_gbm@allparameters)
 
 
 alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
@@ -258,7 +248,7 @@ caret_forecast <- function {
 
 
 ###################################
-# lightgbm
+# Lightgbm
 ####################################
 
 
@@ -266,7 +256,7 @@ caret_forecast <- function {
 
 
 ###################################
-# catboost
+# Catboost
 ####################################
 
 
