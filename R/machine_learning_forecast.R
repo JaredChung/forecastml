@@ -34,7 +34,7 @@ forecast_h2o <- function(train,
 
 
   # To store data
-  results <- matrix(nrow=length(trainslices),ncol = 4)
+  results <- matrix(nrow = 4,ncol = 4)
   predictions <- matrix(nrow=length(trainslices),ncol = 4)
   models <- data.table()
 
@@ -52,9 +52,9 @@ forecast_h2o <- function(train,
 
   #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
 
-  train_h2o <- h2o::as.h2o(data[trainslices[[i]],])
+  train_h2o <- h2o::as.h2o(train)
 
-  test_h2o <- h2o::as.h2o(data[testslices[[i]],])
+  test_h2o <- h2o::as.h2o(test)
 
   y_index <- 'value'
 
@@ -85,13 +85,33 @@ forecast_h2o <- function(train,
                           ntrees = 200)
 
   # Gradient Boosted Machine
-  gbm_h2o <- h2o::h2o.gbm(x = x_index,
-                          y = y_index,
-                          training_frame = train_h2o,
-                          validation_frame = test_h2o,
-                          seed = seed,
-                          ntrees = 200
-                            )
+  gbm_params <- list(learn_rate = c(0.01, 0.1),
+                      max_depth = c(3, 5, 9),
+                      sample_rate = c(0.8, 1.0),
+                      col_sample_rate = c(0.2, 0.5, 1.0))
+
+  # Train and validate a grid of GBMs
+  gbm_grid <- h2o.grid("gbm",
+                        x = "date",
+                        y = "value",
+                        grid_id = "gbm_grid",
+                        training_frame = train_h2o,
+                        validation_frame = test_h2o,
+                        ntrees = 200,
+                        seed = seed,
+                        hyper_params = gbm_params1)
+
+
+  # Get the grid results, sorted by AUC
+  gbm_gridperf <- h2o.getGrid(grid_id = "gbm_grid",
+                               sort_by = "rmse",
+                               decreasing = FALSE)
+
+
+  gbm_h2o_model_id <- gbm_gridperf@model_ids[[1]]
+  gbm_h2o <- h2o.getModel(gbm_h2o_model_id)
+
+  model_param <- as.data.frame(gbm_h2o@parameters)
 
 
   # automl_models_h2o <- h2o.automl(x = x,
@@ -115,10 +135,10 @@ forecast_h2o <- function(train,
                         variable_importances=T    ## not enabled by default
                         )
 
-  results[i, 1] <- h2o.rmse(glm_h2o, valid=T)
-  results[i, 2] <- h2o.rmse(rf_h2o, valid=T)
-  results[i, 3] <- h2o.rmse(gbm_h2o, valid=T)
-  results[i, 4] <- h2o.rmse(mlp_h2o, valid=T)
+  results[1, 1] <- h2o.rmse(glm_h2o, valid=T)
+  results[1, 2] <- h2o.rmse(rf_h2o, valid=T)
+  results[1, 3] <- h2o.rmse(gbm_h2o, valid=T)
+  results[1, 4] <- h2o.rmse(mlp_h2o, valid=T)
 
   print(sprintf("--------- Time slice %s",i),sep="")
   #print(sprintf("RMSE %s", rmse_valid))
@@ -140,6 +160,12 @@ forecast_h2o <- function(train,
 }
 
 
+h2o_fitting <- function() {
+
+}
+
+
+
 # Testing
 
 # Run
@@ -148,7 +174,9 @@ data <- a10
 
 x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
 
-result <- forecast_h2o(data, external_regressor = x_reg)
+result <- forecast_h2o(train = data[trainslices[[1]],],
+                       test = data[testslices[[1]],],
+                       external_regressor = x_reg)
 
 
 
@@ -202,7 +230,7 @@ gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
 best_gbm_model_id <- gbm_gridperf1@model_ids[[1]]
 best_gbm <- h2o.getModel(best_gbm_model_id)
 
-model_param <- as.data.frame(best_gbm@allparameters)
+model_param <- as.data.frame(best_gbm@parameters)
 
 
 alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
@@ -258,6 +286,18 @@ caret_forecast <- function {
 ###################################
 # Catboost
 ####################################
+
+
+
+
+###################################
+# Fitting of models with cross validation
+####################################
+
+
+
+
+
 
 
 
