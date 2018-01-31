@@ -42,6 +42,7 @@ forecast_h2o <- function(train,
   data <- data.frame(list(date = as.Date(time(data)),
                           value = as.numeric(data)))
 
+
   external_regressor$date <- NULL
   external_regressor$value <- NULL
 
