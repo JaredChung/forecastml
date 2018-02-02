@@ -29,7 +29,8 @@ source("R/feature_extracter.R")
 
 forecast_h2o <- function(train,
                          test,
-                         train_xreg ,
+                         train_xreg,
+                         test_xreg,
                          seed = 42) {
 
 
@@ -46,11 +47,15 @@ forecast_h2o <- function(train,
                           value = as.numeric(test)))
 
 
-  external_regressor$date <- NULL
-  external_regressor$value <- NULL
+  # Process External Regressor input
+  train_xreg$date <- NULL
+  train_xreg$value <- NULL
 
-  data <- cbind(data,external_regressor)
+  test_xreg$date <- NULL
+  test_xreg$value <- NULL
 
+  train <- cbind(train, train_xreg)
+  test <- cbind(test, test_xreg)
 
   init <- h2o.init(strict_version_check = FALSE, nthreads = -1)
 
@@ -63,7 +68,6 @@ forecast_h2o <- function(train,
   y_index <- 'value'
 
   x_index <- setdiff(names(train_h2o), y_index)
-
 
   # Elastic Net
   alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
@@ -117,6 +121,18 @@ forecast_h2o <- function(train,
 
   model_param <- as.data.frame(gbm_h2o@parameters)
 
+  # Multi Layer Perceptron
+  mlp_h2o <- h2o.deeplearning(
+                        model_id="dl_model_first",
+                        x = x_index,
+                        y = y_index,
+                        training_frame=train_h2o,
+                        validation_frame=test_h2o,   ## validation dataset: used for scoring and early stopping
+                        activation="Rectifier",  ## default
+                        hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
+                        epochs=1,
+                        variable_importances=T    ## not enabled by default
+                        )
 
   # automl_models_h2o <- h2o.automl(x = x,
   #                             y = y,
@@ -126,25 +142,14 @@ forecast_h2o <- function(train,
   #                             max_runtime_secs = 3300,
   #                             stopping_metric = "AUTO")
 
-  # Multi Layer Perceptron
-  mlp_h2o <- h2o.deeplearning(
-                        model_id="dl_model_first",
-                        x = x_index,
-                        y = y_index,
-                        training_frame=train_h2o,
-                        validation_frame=test_h2o,   ## validation dataset: used for scoring and early stopping
-                        #activation="Rectifier",  ## default
-                        #hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
-                        epochs=1,
-                        variable_importances=T    ## not enabled by default
-                        )
 
+  # Model Results
   results[1, 1] <- h2o.rmse(glm_h2o, valid=T)
   results[1, 2] <- h2o.rmse(rf_h2o, valid=T)
   results[1, 3] <- h2o.rmse(gbm_h2o, valid=T)
   results[1, 4] <- h2o.rmse(mlp_h2o, valid=T)
 
-  print(sprintf("--------- Time slice %s",i),sep="")
+  #print(sprintf("--------- Time slice %s",i),sep="")
   #print(sprintf("RMSE %s", rmse_valid))
 
   #predictions[i,1] <-
@@ -155,11 +160,13 @@ forecast_h2o <- function(train,
 
   results <- as.data.frame(results)
 
-
+  models <- list( glm = )
 
   colnames(results) <- c("glm","rf","gbm","mlp")
 
-  return(list(results=results))
+
+  return(list(results=results,
+              ))
 
 }
 
@@ -176,11 +183,12 @@ h2o_fitting <- function() {
 
 data <- a10
 
-x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+external_regressor <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
 
-result <- forecast_h2o(train = data[trainslices[[1]],],
-                       test = data[testslices[[1]],],
-                       external_regressor = x_reg)
+result <- forecast_h2o(train = data[trainslices[[1]]],
+                       test = data[testslices[[1]]],
+                       train_xreg = x_reg[trainslices_xreg[[1]],],
+                       test_xreg = x_reg[testslices_xreg[[1]],])
 
 
 
