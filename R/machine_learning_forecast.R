@@ -29,7 +29,7 @@ source("R/feature_extracter.R")
 
 forecast_h2o <- function(train,
                          test,
-                         external_regressor = NULL,
+                         train_xreg ,
                          seed = 42) {
 
 
@@ -39,8 +39,11 @@ forecast_h2o <- function(train,
   models <- data.table()
 
   # Convert TS object into dataframe
-  data <- data.frame(list(date = as.Date(time(data)),
-                          value = as.numeric(data)))
+  train <- data.frame(list(date = as.Date(time(train)),
+                          value = as.numeric(train)))
+
+  test <- data.frame(list(date = as.Date(time(test)),
+                          value = as.numeric(test)))
 
 
   external_regressor$date <- NULL
@@ -197,6 +200,13 @@ trainslices <- cross_validation_data(data,
 testslices <- cross_validation_data(data,
                                     initialwindow = intitial_window,
                                     horizon = cv_horizon)$test
+
+trainslices_xreg <- cross_validation_data(external_regressor,
+                                          initialwindow = intitial_window,
+                                          horizon = cv_horizon)$train
+testslices_xreg <- cross_validation_data(external_regressor,
+                                         initialwindow = intitial_window,
+                                         horizon = cv_horizon)$test
 
 
 h2o.init()
