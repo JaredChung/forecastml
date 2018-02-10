@@ -160,12 +160,16 @@ forecast_h2o <- function(train,
 
   results <- as.data.frame(results)
 
-  models <- list( glm = )
+  models <- list( glm = glm_h2o,
+                  gbm = gbm_h2o,
+                  rf = rf_h2o,
+                  mlp = mlp_h2o)
 
   colnames(results) <- c("glm","rf","gbm","mlp")
 
 
-  return(list(results=results,
+  return(list(results = results,
+              models = models,
               ))
 
 }
