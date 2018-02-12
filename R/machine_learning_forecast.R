@@ -34,10 +34,6 @@ forecast_h2o <- function(train,
                          seed = 42) {
 
 
-  # To store data
-  results <- matrix(nrow = 4,ncol = 4)
-  predictions <- matrix(nrow=length(trainslices),ncol = 4)
-  models <- data.table()
 
   # Convert TS object into dataframe
   train <- data.frame(list(date = as.Date(time(train)),
@@ -143,20 +139,16 @@ forecast_h2o <- function(train,
   #                             stopping_metric = "AUTO")
 
 
+
   # Model Results
+
+  # To store data
+  results <- matrix(nrow = 4,ncol = 4)
+
   results[1, 1] <- h2o.rmse(glm_h2o, valid=T)
   results[1, 2] <- h2o.rmse(rf_h2o, valid=T)
   results[1, 3] <- h2o.rmse(gbm_h2o, valid=T)
   results[1, 4] <- h2o.rmse(mlp_h2o, valid=T)
-
-  #print(sprintf("--------- Time slice %s",i),sep="")
-  #print(sprintf("RMSE %s", rmse_valid))
-
-  #predictions[i,1] <-
-  #results <- data.frame()
-  #models <- data.frame()
-
-  h2o.shutdown(prompt=FALSE)
 
   results <- as.data.frame(results)
 
@@ -165,7 +157,12 @@ forecast_h2o <- function(train,
                   rf = rf_h2o,
                   mlp = mlp_h2o)
 
+  predictions <- as.h2o.predict(glm_h2o , newdata = )
+
   colnames(results) <- c("glm","rf","gbm","mlp")
+
+
+  h2o.shutdown(prompt=FALSE)
 
 
   return(list(results = results,
