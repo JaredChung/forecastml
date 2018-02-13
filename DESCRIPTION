@@ -3,8 +3,9 @@ Title: A fully automated forecasting framework
 Version: 0.0.0.9000
 Authors@R: person("Jared", "Chung", email = "jared_chung@hotmail.com", role = c("aut", "cre"))
 Description: 
-Depends: (>= 3.3.3)
-Imports: dpylr, forecast, ggplot2, zoo, lubridate, h2o, data.table
+Depends: R (>= 3.4.0)
+Imports: dplyr, forecast, ggplot2, zoo, lubridate, h2o, data.table,
+    fpp2
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
