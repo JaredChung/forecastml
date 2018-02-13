@@ -31,13 +31,13 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   }
 
   # Build date features (e.g year)
-  new_data <- new_data %>% mutate(month = month(date),
-                          day = day(date),
-                          year = year(date),
+  new_data <- new_data %>% mutate(month = lubridate::month(date),
+                          day = lubridate::day(date),
+                          year = lubridate::year(date),
                           #weeks = weeks(date),
-                          mday = mday(date),
-                          wday = wday(date), # remove 1 level for "dummy variable trap?
-                          yday = yday(date))
+                          mday = lubridate::mday(date),
+                          wday = lubridate::wday(date), # remove 1 level for "dummy variable trap?
+                          yday = lubridate::yday(date))
 
   # Create lag Features
 
@@ -76,7 +76,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   # }
   #
 
-  prcomp_features
+  #prcomp_features
 
   return(new_data)
 
