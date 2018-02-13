@@ -15,6 +15,7 @@
 
 
 #tempory import
+devtools::use_package('dplyr')
 library(tidyverse)
 library(h2o)
 library(fpp2)
@@ -103,7 +104,7 @@ forecast_h2o <- function(train,
                         validation_frame = test_h2o,
                         ntrees = 200,
                         seed = seed,
-                        hyper_params = gbm_params1)
+                        hyper_params = gbm_params)
 
 
   # Get the grid results, sorted by AUC
@@ -166,7 +167,7 @@ forecast_h2o <- function(train,
 
 
   return(list(results = results,
-              models = models,
+              models = models
               ))
 
 }
@@ -184,7 +185,25 @@ h2o_fitting <- function() {
 
 data <- a10
 
-external_regressor <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+
+cv_horizon <- 1
+intitial_window <- 0.7
+
+trainslices <- cross_validation_data(data,
+                                     initialwindow = intitial_window,
+                                     horizon = cv_horizon)$train
+testslices <- cross_validation_data(data,
+                                    initialwindow = intitial_window,
+                                    horizon = cv_horizon)$test
+
+trainslices_xreg <- cross_validation_data(external_regressor,
+                                          initialwindow = intitial_window,
+                                          horizon = cv_horizon)$train
+testslices_xreg <- cross_validation_data(external_regressor,
+                                         initialwindow = intitial_window,
+                                         horizon = cv_horizon)$test
+
 
 result <- forecast_h2o(train = data[trainslices[[1]]],
                        test = data[testslices[[1]]],
@@ -192,7 +211,7 @@ result <- forecast_h2o(train = data[trainslices[[1]]],
                        test_xreg = x_reg[testslices_xreg[[1]],])
 
 
-
+h2o.shutdown(prompt=FALSE)
 
 
 
