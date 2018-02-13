@@ -12,18 +12,8 @@
 #' @param
 #'
 #' @example
+#' @export
 
-#tempory import (remove during)
-library(fpp2) # data to test time series on
-library(forecast)
-library(ggplot2)
-library(caret)
-library(tidyverse)
-library(zoo)
-library(lubridate)
-library(parallel)
-source("R/utils.R")
-#library(R6) convert to R6 Class later ....
 
 # Access forecast package
 run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NULL, test_regressor=NULL,...) {
@@ -230,26 +220,26 @@ plot.forecastml <- function(forecast) {
 
 
 
-# load practice data of pharmaceutical products
-data <- a10
+# # load practice data of pharmaceutical products
 
-
-
-forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
-
-
-
-
-#testing
-asdf <- ets(data)
-
-asdf2 <- forecast(asdf,h=1)
-asdf2 <- as.data.frame(asdf2)
-
-ffff <-as.data.frame(list(ets= asdf2$`Point Forecast`))
-
-
-asdf2[,1]
+# library(fpp2) # data to test time series on
+# data <- a10
+#
+# forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
+#
+#
+#
+#
+# #testing
+# asdf <- ets(data)
+#
+# asdf2 <- forecast(asdf,h=1)
+# asdf2 <- as.data.frame(asdf2)
+#
+# ffff <-as.data.frame(list(ets= asdf2$`Point Forecast`))
+#
+#
+# asdf2[,1]
 
 
 
