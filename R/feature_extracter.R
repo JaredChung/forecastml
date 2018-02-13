@@ -12,16 +12,12 @@
 #' @param
 #'
 #' @example
-
+#' @export
 
 
 #fit extracter
 
 fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll = 3, fourier_K = 3) {
-
-  require(lubridate)
-  require(dplyr)
-  require(zoo)
 
 
   if(class(data) == "ts") {
