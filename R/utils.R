@@ -33,7 +33,7 @@ train_test_data <- function(data) {
 # Cross validation
 cross_validation_data <- function(data,
                                   initialwindow = 0.7,
-                                  horizon = 12,
+                                  horizon = 1,
                                   fixedWindow = TRUE) {
 
   if ("ts" %in% class(data)) {
