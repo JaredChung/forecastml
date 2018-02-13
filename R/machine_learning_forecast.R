@@ -13,15 +13,8 @@
 #'
 #' @example
 
+#' @export
 
-#tempory import
-devtools::use_package('dplyr')
-library(tidyverse)
-library(h2o)
-library(fpp2)
-library(data.table)
-source("R/utils.R")
-source("R/feature_extracter.R")
 
 ###################################
 # H2o
@@ -183,124 +176,126 @@ h2o_fitting <- function() {
 
 # Run
 
-data <- a10
-
-x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
-
-cv_horizon <- 1
-intitial_window <- 0.7
-
-trainslices <- cross_validation_data(data,
-                                     initialwindow = intitial_window,
-                                     horizon = cv_horizon)$train
-testslices <- cross_validation_data(data,
-                                    initialwindow = intitial_window,
-                                    horizon = cv_horizon)$test
-
-trainslices_xreg <- cross_validation_data(external_regressor,
-                                          initialwindow = intitial_window,
-                                          horizon = cv_horizon)$train
-testslices_xreg <- cross_validation_data(external_regressor,
-                                         initialwindow = intitial_window,
-                                         horizon = cv_horizon)$test
-
-
-result <- forecast_h2o(train = data[trainslices[[1]]],
-                       test = data[testslices[[1]]],
-                       train_xreg = x_reg[trainslices_xreg[[1]],],
-                       test_xreg = x_reg[testslices_xreg[[1]],])
-
-
-h2o.shutdown(prompt=FALSE)
+# library(fpp2)
+#
+# data <- a10
+#
+# x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+#
+# cv_horizon <- 1
+# intitial_window <- 0.7
+#
+# trainslices <- cross_validation_data(data,
+#                                      initialwindow = intitial_window,
+#                                      horizon = cv_horizon)$train
+# testslices <- cross_validation_data(data,
+#                                     initialwindow = intitial_window,
+#                                     horizon = cv_horizon)$test
+#
+# trainslices_xreg <- cross_validation_data(x_reg,
+#                                           initialwindow = intitial_window,
+#                                           horizon = cv_horizon)$train
+# testslices_xreg <- cross_validation_data(x_reg,
+#                                          initialwindow = intitial_window,
+#                                          horizon = cv_horizon)$test
+#
+#
+# result <- forecast_h2o(train = data[trainslices[[1]]],
+#                        test = data[testslices[[1]]],
+#                        train_xreg = x_reg[trainslices_xreg[[1]],],
+#                        test_xreg = x_reg[testslices_xreg[[1]],])
+#
+#
+# h2o.shutdown(prompt=FALSE)
 
 
 
 #TESTING h2o
 
-data <- a10
-
-cv_horizon <- 1
-intitial_window <- 0.7
-
-trainslices <- cross_validation_data(data,
-                                     initialwindow = intitial_window,
-                                     horizon = cv_horizon)$train
-testslices <- cross_validation_data(data,
-                                    initialwindow = intitial_window,
-                                    horizon = cv_horizon)$test
-
-trainslices_xreg <- cross_validation_data(external_regressor,
-                                          initialwindow = intitial_window,
-                                          horizon = cv_horizon)$train
-testslices_xreg <- cross_validation_data(external_regressor,
-                                         initialwindow = intitial_window,
-                                         horizon = cv_horizon)$test
-
-
-h2o.init()
-
-data <- data.frame(list(date = as.Date(time(data)),
-                        value = as.numeric(data)))
-
-data <- as.h2o(data)
-
-# GBM hyperparamters
-gbm_params1 <- list(learn_rate = c(0.01, 0.1),
-                    max_depth = c(3, 5, 9),
-                    sample_rate = c(0.8, 1.0),
-                    col_sample_rate = c(0.2, 0.5, 1.0))
-
-# Train and validate a grid of GBMs
-gbm_grid1 <- h2o.grid("gbm", x = "date", y = "value",
-                      grid_id = "gbm_grid1",
-                      training_frame = data[trainslices[[1]],],
-                      validation_frame = data[testslices[[1]],],
-                      ntrees = 100,
-                      seed = 1,
-                      hyper_params = gbm_params1)
-
-
-# Get the grid results, sorted by AUC
-gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
-                             sort_by = "rmse",
-                             decreasing = FALSE)
-
-
-best_gbm_model_id <- gbm_gridperf1@model_ids[[1]]
-best_gbm <- h2o.getModel(best_gbm_model_id)
-
-model_param <- as.data.frame(best_gbm@parameters)
-
-
-alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
-hyper_parameters = list(alpha = alpha_opts)
-
-glm_h2o <- h2o::h2o.glm(x = x_index,
-                        y = y_index,
-                        training_frame = train_h2o,
-                        validation_frame = test_h2o,
-                        seed = seed,
-                        family = "gaussian",
-                        lambda_search = TRUE,
-                        standardize = TRUE,
-                        #hyper_params = hyper_parameters,
-                        nfolds = 5)
-
+# data <- a10
 #
-rf_h2o <- h2o::h2o.randomForest(x = x_index,
-                                y = y_index,
-                                training_frame = train_h2o,
-                                validation_frame = test_h2o,
-                                seed = seed,
-
-h2o.shutdown()
+# cv_horizon <- 1
+# intitial_window <- 0.7
+#
+# trainslices <- cross_validation_data(data,
+#                                      initialwindow = intitial_window,
+#                                      horizon = cv_horizon)$train
+# testslices <- cross_validation_data(data,
+#                                     initialwindow = intitial_window,
+#                                     horizon = cv_horizon)$test
+#
+# trainslices_xreg <- cross_validation_data(external_regressor,
+#                                           initialwindow = intitial_window,
+#                                           horizon = cv_horizon)$train
+# testslices_xreg <- cross_validation_data(external_regressor,
+#                                          initialwindow = intitial_window,
+#                                          horizon = cv_horizon)$test
+#
+#
+# h2o.init()
+#
+# data <- data.frame(list(date = as.Date(time(data)),
+#                         value = as.numeric(data)))
+#
+# data <- as.h2o(data)
+#
+# # GBM hyperparamters
+# gbm_params1 <- list(learn_rate = c(0.01, 0.1),
+#                     max_depth = c(3, 5, 9),
+#                     sample_rate = c(0.8, 1.0),
+#                     col_sample_rate = c(0.2, 0.5, 1.0))
+#
+# # Train and validate a grid of GBMs
+# gbm_grid1 <- h2o.grid("gbm", x = "date", y = "value",
+#                       grid_id = "gbm_grid1",
+#                       training_frame = data[trainslices[[1]],],
+#                       validation_frame = data[testslices[[1]],],
+#                       ntrees = 100,
+#                       seed = 1,
+#                       hyper_params = gbm_params1)
+#
+#
+# # Get the grid results, sorted by AUC
+# gbm_gridperf1 <- h2o.getGrid(grid_id = "gbm_grid1",
+#                              sort_by = "rmse",
+#                              decreasing = FALSE)
+#
+#
+# best_gbm_model_id <- gbm_gridperf1@model_ids[[1]]
+# best_gbm <- h2o.getModel(best_gbm_model_id)
+#
+# model_param <- as.data.frame(best_gbm@parameters)
+#
+#
+# alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
+# hyper_parameters = list(alpha = alpha_opts)
+#
+# glm_h2o <- h2o::h2o.glm(x = x_index,
+#                         y = y_index,
+#                         training_frame = train_h2o,
+#                         validation_frame = test_h2o,
+#                         seed = seed,
+#                         family = "gaussian",
+#                         lambda_search = TRUE,
+#                         standardize = TRUE,
+#                         #hyper_params = hyper_parameters,
+#                         nfolds = 5)
+#
+# #
+# rf_h2o <- h2o::h2o.randomForest(x = x_index,
+#                                 y = y_index,
+#                                 training_frame = train_h2o,
+#                                 validation_frame = test_h2o,
+#                                 seed = seed,
+#
+# h2o.shutdown()
 
 ###################################
 # Caret
 ####################################
 
 
-caret_forecast <- function {
+caret_forecast <- function (){
 
 }
 
