@@ -25,7 +25,8 @@ forecast_h2o <- function(train,
                          test,
                          train_xreg,
                          test_xreg,
-                         seed = 42) {
+                         seed = 42,
+                         run_automl = FALSE) {
 
 
 
@@ -124,36 +125,49 @@ forecast_h2o <- function(train,
                         variable_importances=T    ## not enabled by default
                         )
 
-  # automl_models_h2o <- h2o.automl(x = x,
-  #                             y = y,
-  #                             training_frame = train_h2o,
-  #                             validation_frame = test_h2o,
-  #                             #leaderboard_frame = test_h2o,
-  #                             max_runtime_secs = 3300,
-  #                             stopping_metric = "AUTO")
-
+  if(!run_automl) {
+    automl_h2o <- h2o.automl(x = x,
+                                y = y,
+                                training_frame = train_h2o,
+                                validation_frame = test_h2o,
+                                #leaderboard_frame = test_h2o,
+                                max_runtime_secs = 3300,
+                                stopping_metric = "AUTO")
+  } else {
+    automl_h2o <- NA
+  }
 
 
   # Model Results
 
   # To store data
-  results <- matrix(nrow = 4,ncol = 4)
+
+  results <- matrix(nrow = 1,ncol = 5)
 
   results[1, 1] <- h2o.rmse(glm_h2o, valid=T)
   results[1, 2] <- h2o.rmse(rf_h2o, valid=T)
   results[1, 3] <- h2o.rmse(gbm_h2o, valid=T)
   results[1, 4] <- h2o.rmse(mlp_h2o, valid=T)
 
+  if(!run_automl) {
+    results[1,5] <- h2o.rmse(automl_h2o, valid=T)
+  } else {
+    results[1,5] <- NA
+  }
+
+
   results <- as.data.frame(results)
+  colnames(results) <- c("glm","rf","gbm","mlp","auto_ml")
 
   models <- list( glm = glm_h2o,
                   gbm = gbm_h2o,
                   rf = rf_h2o,
-                  mlp = mlp_h2o)
+                  mlp = mlp_h2o,
+                  auto_ml = automl_h2o)
 
   predictions <- as.h2o.predict(glm_h2o , newdata = )
 
-  colnames(results) <- c("glm","rf","gbm","mlp")
+
 
 
   h2o.shutdown(prompt=FALSE)
