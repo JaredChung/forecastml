@@ -82,9 +82,9 @@ forecast_h2o <- function(train,
                                    decreasing = FALSE)
 
   glm_h2o_model_id <- glm_gridperf@model_ids[[1]]
-  glm_h2o <- h2o::h2o.getModel(gbm_hlo_model_id)
+  glm_h2o <- h2o::h2o.getModel(glm_h2o_model_id)
 
-  glm_model_param <- as.data.frame(gbm_h2o@parameters)
+  glm_model_param <- as.data.frame(glm_h2o@parameters)
 
 
   # RANDOM FOREST
@@ -96,9 +96,9 @@ forecast_h2o <- function(train,
                           ntrees = 200)
 
   # GRADIENT BOOSTED MACHINE
-  gbm_params <- list(learn_rate = c(0.01, 0.1),
+  gbm_params <- list(learn_rate = c(0.01, 0.05, 0.1),
                       max_depth = c(3, 5, 9),
-                      sample_rate = c(0.8, 1.0),
+                      sample_rate = c(0.6, 0.8, 1.0),
                       col_sample_rate = c(0.2, 0.5, 1.0))
 
   # Train and validate a grid of GBMs
@@ -180,7 +180,7 @@ forecast_h2o <- function(train,
   #predictions <- as.h2o.predict(glm_h2o , newdata = )
 
   model_param <- list(glm = glm_model_param,
-                      )
+                      gbm = gbm_model_param)
 
   h2o::h2o.shutdown(prompt=FALSE)
 
@@ -202,39 +202,39 @@ h2o_fitting <- function() {
 
 # Run
 #
-# library(fpp2)
-#
-# data <- a10
-#
-# x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
-#
-# cv_horizon <- 1
-# intitial_window <- 0.7
-#
-# trainslices <- cross_validation_data(data,
-#                                      initialwindow = intitial_window,
-#                                      horizon = cv_horizon)$train
-# testslices <- cross_validation_data(data,
-#                                     initialwindow = intitial_window,
-#                                     horizon = cv_horizon)$test
-#
-# trainslices_xreg <- cross_validation_data(x_reg,
-#                                           initialwindow = intitial_window,
-#                                           horizon = cv_horizon)$train
-# testslices_xreg <- cross_validation_data(x_reg,
-#                                          initialwindow = intitial_window,
-#                                          horizon = cv_horizon)$test
-#
-#
-# # with external regressors
-# result <- forecast_h2o(train = x_reg[trainslices_xreg[[1]],],
-#                        test = x_reg[testslices_xreg[[1]],])
-#
-#
-#
-# # without external regressors
-# result <- forecast_h2o(train = data[trainslices[[1]]],
-#                        test = data[testslices[[1]]])
+library(fpp2)
+
+data <- a10
+
+x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+
+cv_horizon <- 1
+intitial_window <- 0.7
+
+trainslices <- cross_validation_data(data,
+                                     initialwindow = intitial_window,
+                                     horizon = cv_horizon)$train
+testslices <- cross_validation_data(data,
+                                    initialwindow = intitial_window,
+                                    horizon = cv_horizon)$test
+
+trainslices_xreg <- cross_validation_data(x_reg,
+                                          initialwindow = intitial_window,
+                                          horizon = cv_horizon)$train
+testslices_xreg <- cross_validation_data(x_reg,
+                                         initialwindow = intitial_window,
+                                         horizon = cv_horizon)$test
+
+
+# with external regressors
+result <- forecast_h2o(train = x_reg[trainslices_xreg[[1]],],
+                       test = x_reg[testslices_xreg[[1]],])
+
+
+
+# without external regressors
+result <- forecast_h2o(train = data[trainslices[[1]]],
+                       test = data[testslices[[1]]])
 
 
 # h2o.shutdown(prompt=FALSE)
