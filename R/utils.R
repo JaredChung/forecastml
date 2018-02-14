@@ -5,12 +5,18 @@
 # file: utility
 # ========================================== #
 
-#' Forecast using standard forecasting
+#' Utility functions
 #'
 #' @param data Time series object as an input
-#' @param
+#' @param initialwindow Split the
+#' @param horizon
+#' @param fixed window
 #'
 #' @example
+#'
+#'
+#'
+#'
 #' @export
 
 
@@ -34,18 +40,18 @@ train_test_data <- function(data) {
 cross_validation_data <- function(data,
                                   initialwindow = 0.7,
                                   horizon = 1,
-                                  fixedWindow = TRUE) {
+                                  fixedwindow = TRUE) {
 
   if ("ts" %in% class(data)) {
     return(timeslice <- caret::createTimeSlices(1:length(data),
                                                 initialWindow = length(data) * initialwindow,
                                                 horizon = horizon,
-                                                fixedWindow = fixedWindow))
+                                                fixedWindow = fixedwindow))
   } else {
     return(timeslice <- caret::createTimeSlices(1:nrow(data),
                                                 initialWindow = nrow(data) * initialwindow,
                                                 horizon = horizon,
-                                                fixedWindow = fixedWindow))
+                                                fixedWindow = fixedwindow))
   }
   return(timeslice)
 }
