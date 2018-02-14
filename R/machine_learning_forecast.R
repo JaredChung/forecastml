@@ -33,19 +33,21 @@ forecast_h2o <- function(train,
                          seed = 42,
                          run_automl = FALSE) {
 
-  # Convert TS object into dataframe
+  # Convert into dataframe if object is TS
 
   if(class(train) == "ts") {
     train <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(train)))),
                             value = as.numeric(train)))
+    print("Object is Time Series")
   }
   if(class(test) == "ts") {
     test <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(test)))),
                             value = as.numeric(test)))
+    print("Object is Time Series")
   }
 
 
-  # h2o Initiation
+  # h2o initilization
   init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
 
   # Convert into h2o data frame
@@ -56,21 +58,13 @@ forecast_h2o <- function(train,
   y_index <- 'value'
   x_index <- setdiff(names(train_h2o), y_index)
 
-  print(head(train_h2o))
-  print(head(test_h2o))
 
-  # Elastic Net
+  # ELASTIC NET
 
   # Set range of alpha to be searched on e.g
-  # alpha_opts = list(list(0),
-  #                   list(0.25),
-  #                   list(0.5),
-  #                   list(0.75),
-  #                   list(1))
-
   glm_params = list(alpha = c(0,0.25,0.5,0.75,1))
 
-  glm_h2o <- h2o::h2o.grid("glm",
+  glm_grid <- h2o::h2o.grid("glm",
                            x = x_index,
                            y = y_index,
                            grid_id = "glm_grid",
@@ -82,8 +76,18 @@ forecast_h2o <- function(train,
                            seed = seed,
                            hyper_params = glm_params)
 
+  # Get the grid results, sorted by AUC
+  glm_gridperf <- h2o::h2o.getGrid(grid_id = "glm_grid",
+                                   sort_by = "rmse",
+                                   decreasing = FALSE)
 
-  # Random Forest
+  glm_h2o_model_id <- glm_gridperf@model_ids[[1]]
+  glm_h2o <- h2o::h2o.getModel(gbm_hlo_model_id)
+
+  glm_model_param <- as.data.frame(gbm_h2o@parameters)
+
+
+  # RANDOM FOREST
   rf_h2o <- h2o::h2o.randomForest(x = x_index,
                           y = y_index,
                           training_frame = train_h2o,
@@ -91,7 +95,7 @@ forecast_h2o <- function(train,
                           seed = seed,
                           ntrees = 200)
 
-  # Gradient Boosted Machine
+  # GRADIENT BOOSTED MACHINE
   gbm_params <- list(learn_rate = c(0.01, 0.1),
                       max_depth = c(3, 5, 9),
                       sample_rate = c(0.8, 1.0),
@@ -118,11 +122,11 @@ forecast_h2o <- function(train,
   gbm_h2o_model_id <- gbm_gridperf@model_ids[[1]]
   gbm_h2o <- h2o::h2o.getModel(gbm_h2o_model_id)
 
-  model_param <- as.data.frame(gbm_h2o@parameters)
+  gbm_model_param <- as.data.frame(gbm_h2o@parameters)
 
-  # Multi Layer Perceptron
+  # MULTILAYER PERCEPTRON
   mlp_h2o <- h2o::h2o.deeplearning(
-                        model_id="dl_model_first",
+                        model_id="mlp_model",
                         x = x_index,
                         y = y_index,
                         training_frame=train_h2o,
@@ -133,9 +137,9 @@ forecast_h2o <- function(train,
                         variable_importances=T    ## not enabled by default
                         )
 
-  if(!run_automl) {
-    automl_h2o <- h2o::h2o.automl(x = x,
-                                y = y,
+  if(run_automl) {
+    automl_h2o <- h2o::h2o.automl(x = x_index,
+                                y = y_index,
                                 training_frame = train_h2o,
                                 validation_frame = test_h2o,
                                 #leaderboard_frame = test_h2o,
@@ -167,16 +171,16 @@ forecast_h2o <- function(train,
   results <- as.data.frame(results)
   colnames(results) <- c("glm","rf","gbm","mlp","auto_ml")
 
-  models <- list( glm = glm_h2o,
-                  gbm = gbm_h2o,
-                  rf = rf_h2o,
-                  mlp = mlp_h2o,
-                  auto_ml = automl_h2o)
+  models <- list(glm = glm_h2o,
+                 rf = rf_h2o,
+                 gbm = gbm_h2o,
+                 mlp = mlp_h2o,
+                 auto_ml = automl_h2o)
 
   #predictions <- as.h2o.predict(glm_h2o , newdata = )
 
-
-
+  model_param <- list(glm = glm_model_param,
+                      )
 
   h2o::h2o.shutdown(prompt=FALSE)
 
