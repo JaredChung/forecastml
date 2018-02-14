@@ -6,7 +6,7 @@
 # file: Standard forecasting techniques
 # ========================================== #
 
-#' Forecast using standard forecasting
+#' Forecast using traditional forecasting techniques
 #'
 #' @param data Time series object as an input
 #' @param
