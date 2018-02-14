@@ -6,12 +6,17 @@
 # file: feature_extracter
 # ========================================== #
 
-#' Forecast using standard forecasting
+#' Extract time series based features
 #'
 #' @param data Time series object as an input
-#' @param
+#' @param num_lag
+#' @param num_roll
+#' @param fourier_k
 #'
 #' @example
+#'
+#'
+#'
 #' @export
 
 
@@ -21,13 +26,13 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
 
 
   if(class(data) == "ts") {
-    new_data <- data.frame(list(date = as.Date(time(data)),
+    new_data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
                             value = as.numeric(data)))
 
   }
 
   # Build date features (e.g year)
-  new_data <- new_data %>% mutate(month = lubridate::month(date),
+  new_data <- new_data %>% dplyr::mutate(month = lubridate::month(date),
                           day = lubridate::day(date),
                           year = lubridate::year(date),
                           #weeks = weeks(date),
@@ -38,7 +43,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
   # Create lag Features
 
   for (i in seq(num_lag)) {
-    name = paste("lag",i,sep="")
+    name = paste("lag", i, sep="")
     new_data[name] <- lag(new_data$value,i)
   }
 
