@@ -6,14 +6,21 @@
 # file: machine_learning_forecast
 # ========================================== #
 
-#' Forecast using standard forecasting
+#' Forecast using Machine Learning Techniques
 #'
-#' @param data Time series object as an input
+#' @param train Takes a TS object as an argument
+#' @param test
+#' @param
+#' @param
+#' @param
 #' @param
 #'
 #' @example
 
 #' @export
+
+
+#https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
 
 
 ###################################
@@ -48,32 +55,40 @@ forecast_h2o <- function(train,
   train <- cbind(train, train_xreg)
   test <- cbind(test, test_xreg)
 
+  # h2o Initiation
   init <- h2o.init(strict_version_check = FALSE, nthreads = -1)
 
-  #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
-
+  # Convert into h2o data frame
   train_h2o <- h2o::as.h2o(train)
-
   test_h2o <- h2o::as.h2o(test)
 
+  # assign x and y index
   y_index <- 'value'
-
   x_index <- setdiff(names(train_h2o), y_index)
 
   # Elastic Net
-  alpha_opts = list(list(0), list(.25), list(.5), list(.75), list(1))
-  hyper_parameters = list(alpha = alpha_opts)
 
-  glm_h2o <- h2o::h2o.glm(x = x_index,
-                          y = y_index,
-                          training_frame = train_h2o,
-                          validation_frame = test_h2o,
-                          seed = seed,
-                          family = "gaussian",
-                          lambda_search = TRUE,
-                          standardize = TRUE,
-                          #hyper_params = hyper_parameters,
-                          nfolds = 5)
+  # Set range of alpha to be searched on e.g
+  # alpha_opts = list(list(0),
+  #                   list(0.25),
+  #                   list(0.5),
+  #                   list(0.75),
+  #                   list(1))
+
+  glm_params = list(alpha = c(0,0.25,0.5,0.75,1))
+
+  glm_h2o <- h2o::h2o.grid("glm",
+                           x = "date",
+                           y = "value",
+                           grid_id = "glm_grid",
+                           training_frame = train_h2o,
+                           validation_frame = test_h2o,
+                           family = "gaussian",
+                           lambda_search = TRUE,
+                           standardize = TRUE,
+                           seed = seed,
+                           hyper_params = glm_params)
+
 
   # Random Forest
   rf_h2o <- h2o::h2o.randomForest(x = x_index,
@@ -190,37 +205,37 @@ h2o_fitting <- function() {
 
 # Run
 
-# library(fpp2)
-#
-# data <- a10
-#
-# x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
-#
-# cv_horizon <- 1
-# intitial_window <- 0.7
-#
-# trainslices <- cross_validation_data(data,
-#                                      initialwindow = intitial_window,
-#                                      horizon = cv_horizon)$train
-# testslices <- cross_validation_data(data,
-#                                     initialwindow = intitial_window,
-#                                     horizon = cv_horizon)$test
-#
-# trainslices_xreg <- cross_validation_data(x_reg,
-#                                           initialwindow = intitial_window,
-#                                           horizon = cv_horizon)$train
-# testslices_xreg <- cross_validation_data(x_reg,
-#                                          initialwindow = intitial_window,
-#                                          horizon = cv_horizon)$test
-#
-#
-# result <- forecast_h2o(train = data[trainslices[[1]]],
-#                        test = data[testslices[[1]]],
-#                        train_xreg = x_reg[trainslices_xreg[[1]],],
-#                        test_xreg = x_reg[testslices_xreg[[1]],])
-#
-#
-# h2o.shutdown(prompt=FALSE)
+library(fpp2)
+
+data <- a10
+
+x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+
+cv_horizon <- 1
+intitial_window <- 0.7
+
+trainslices <- cross_validation_data(data,
+                                     initialwindow = intitial_window,
+                                     horizon = cv_horizon)$train
+testslices <- cross_validation_data(data,
+                                    initialwindow = intitial_window,
+                                    horizon = cv_horizon)$test
+
+trainslices_xreg <- cross_validation_data(x_reg,
+                                          initialwindow = intitial_window,
+                                          horizon = cv_horizon)$train
+testslices_xreg <- cross_validation_data(x_reg,
+                                         initialwindow = intitial_window,
+                                         horizon = cv_horizon)$test
+
+
+result <- forecast_h2o(train = data[trainslices[[1]]],
+                       test = data[testslices[[1]]],
+                       train_xreg = x_reg[trainslices_xreg[[1]],],
+                       test_xreg = x_reg[testslices_xreg[[1]],])
+
+
+h2o.shutdown(prompt=FALSE)
 
 
 
