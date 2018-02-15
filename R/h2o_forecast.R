@@ -252,33 +252,33 @@ h2o_fitting <- function() {
 
 # Run
 #
-library(fpp2)
-
-data <- a10
-
-x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
-
-cv_horizon <- 1
-intitial_window <- 0.7
-
-trainslices <- cross_validation_data(data,
-                                     initialwindow = intitial_window,
-                                     horizon = cv_horizon)$train
-testslices <- cross_validation_data(data,
-                                    initialwindow = intitial_window,
-                                    horizon = cv_horizon)$test
-
-trainslices_xreg <- cross_validation_data(x_reg,
-                                          initialwindow = intitial_window,
-                                          horizon = cv_horizon)$train
-testslices_xreg <- cross_validation_data(x_reg,
-                                         initialwindow = intitial_window,
-                                         horizon = cv_horizon)$test
-
-
-# with external regressors
-result <- forecast_h2o(train = x_reg[trainslices_xreg[[1]],],
-                       test = x_reg[testslices_xreg[[1]],])
+# library(fpp2)
+#
+# data <- a10
+#
+# x_reg <- fit_feature_extracter(data, num_lag = 2, num_roll = 3)
+#
+# cv_horizon <- 1
+# intitial_window <- 0.7
+#
+# trainslices <- cross_validation_data(data,
+#                                      initialwindow = intitial_window,
+#                                      horizon = cv_horizon)$train
+# testslices <- cross_validation_data(data,
+#                                     initialwindow = intitial_window,
+#                                     horizon = cv_horizon)$test
+#
+# trainslices_xreg <- cross_validation_data(x_reg,
+#                                           initialwindow = intitial_window,
+#                                           horizon = cv_horizon)$train
+# testslices_xreg <- cross_validation_data(x_reg,
+#                                          initialwindow = intitial_window,
+#                                          horizon = cv_horizon)$test
+#
+#
+# # with external regressors
+# result <- forecast_h2o(train = x_reg[trainslices_xreg[[1]],],
+#                        test = x_reg[testslices_xreg[[1]],])
 
 
 
