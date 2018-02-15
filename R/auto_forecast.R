@@ -16,25 +16,25 @@
 
 
 # Access forecast package
-run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NULL, test_regressor=NULL,...) {
-
-  # check if there is external regressors
-  if(is.null(train_regressor)) {
-    model <- FUN(train, ...)
-    predictions <-forecast::forecast(model, h = length(test))
-  } else {
-    model <- FUN(train, xreg = train_regressor , ...)
-    predictions <-forecast::forecast(model, h = length(test), xreg = test_regressor)
-  }
-
-  result <- forecast::accuracy(predictions, test) %>%
-                                  as.data.frame() %>%
-                                  rownames_to_column() %>%
-                                  mutate(model = name,
-                                         timeslice = timeslice)
-
-  return(list(predictions = as.data.frame(predictions), result = result, model = model ))
-}
+# run_forecast <- function(train, test,FUN, name, timeslice,  train_regressor= NULL, test_regressor=NULL,...) {
+#
+#   # check if there is external regressors
+#   if(is.null(train_regressor)) {
+#     model <- FUN(train, ...)
+#     predictions <-forecast::forecast(model, h = length(test))
+#   } else {
+#     model <- FUN(train, xreg = train_regressor , ...)
+#     predictions <-forecast::forecast(model, h = length(test), xreg = test_regressor)
+#   }
+#
+#   result <- forecast::accuracy(predictions, test) %>%
+#                                   as.data.frame() %>%
+#                                   tibble::rownames_to_column() %>%
+#                                   dplyr::mutate(model = name,
+#                                          timeslice = timeslice)
+#
+#   return(list(predictions = as.data.frame(predictions), result = result, model = model ))
+# }
 
 
 automatic_forecast <- function(data,
@@ -83,63 +83,78 @@ automatic_forecast <- function(data,
       print(sprintf("--------- Test Length %s",length(testslices[[i]])))
     }
 
-    ets <- run_forecast(train = data[trainslices[[i]]],
-                        test = data[testslices[[i]]],
-                        FUN = forecast::ets,
-                        name = 'ets',
-                        timeslice = i,
-                        lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
+    # ets <- run_forecast(train = data[trainslices[[i]]],
+    #                     test = data[testslices[[i]]],
+    #                     FUN = forecast::ets,
+    #                     name = 'ets',
+    #                     timeslice = i,
+    #                     lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
+    #
+    # arima <- run_forecast(train = data[trainslices[[i]]],
+    #                     test = data[testslices[[i]]],
+    #                     FUN = forecast::auto.arima,
+    #                     name = 'arima',
+    #                     timeslice = i,
+    #                     lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
+    #
+    # tbats <- run_forecast(train = data[trainslices[[i]]],
+    #                     test = data[testslices[[i]]],
+    #                     FUN = forecast::tbats,
+    #                     name = 'tbats',
+    #                     timeslice = i)
+    #
+    # nnetar <- run_forecast(train = data[trainslices[[i]]],
+    #                     test = data[testslices[[i]]],
+    #                     FUN = forecast::nnetar,
+    #                     name = 'nnetar',
+    #                     timeslice = i,
+    #                     lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]),
+    #                     train_regressor = trainslices_xreg,
+    #                     test_regressor = testslices_xreg)
+    #
+    # thetaf <- run_forecast(train = data[trainslices[[i]]],
+    #                     test = data[testslices[[i]]],
+    #                     FUN = forecast::thetaf,
+    #                     name = 'thetaf',
+    #                     timeslice = i)
 
-    arima <- run_forecast(train = data[trainslices[[i]]],
-                        test = data[testslices[[i]]],
-                        FUN = forecast::auto.arima,
-                        name = 'arima',
-                        timeslice = i,
-                        lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]))
 
-    tbats <- run_forecast(train = data[trainslices[[i]]],
-                        test = data[testslices[[i]]],
-                        FUN = forecast::tbats,
-                        name = 'tbats',
-                        timeslice = i)
-
-    nnetar <- run_forecast(train = data[trainslices[[i]]],
-                        test = data[testslices[[i]]],
-                        FUN = forecast::nnetar,
-                        name = 'nnetar',
-                        timeslice = i,
-                        lambda = forecast::BoxCox.lambda(data[trainslices[[i]]]),
-                        train_regressor = trainslices_xreg,
-                        test_regressor = testslices_xreg)
-
-    thetaf <- run_forecast(train = data[trainslices[[i]]],
-                        test = data[testslices[[i]]],
-                        FUN = forecast::thetaf,
-                        name = 'thetaf',
-                        timeslice = i)
-
+    standard_forecast_result <- standard_forecast(train = data[trainslices[[i]]],
+                                                  test = data[testslices[[i]]],
+                                                  timeslice = i,
+                                                  trainslices_xreg = trainslices_xreg,
+                                                  testslices_xreg = testslices_xreg)
 
     #export the output
     if(nrow(predictions) == 0) {
-         predictions <- as.data.frame(list(time = rownames(ets$predictions),
-                                           ets = ets$predictions$`Point Forecast`,
-                                           arima = arima$predictions$`Point Forecast`,
-                                           tbats = tbats$predictions$`Point Forecast`,
-                                           nnetar = nnetar$predictions$`Point Forecast`,
-                                           thetaf = thetaf$predictions$`Point Forecast`))
+         predictions <- as.data.frame(list(time = rownames(standard_forecast_result$ets$predictions),
+                                           ets = standard_forecast_result$ets$predictions$`Point Forecast`,
+                                           arima = standard_forecast_result$arima$predictions$`Point Forecast`,
+                                           tbats = standard_forecast_result$tbats$predictions$`Point Forecast`,
+                                           nnetar = standard_forecast_result$nnetar$predictions$`Point Forecast`,
+                                           thetaf = standard_forecast_result$thetaf$predictions$`Point Forecast`))
     } else {
-         predictions <- bind_rows(predictions,as.data.frame(list(time = rownames(ets$predictions),
-                                                                 ets = ets$predictions$`Point Forecast`,
-                                                                 arima = arima$predictions$`Point Forecast`,
-                                                                 tbats = tbats$predictions$`Point Forecast`,
-                                                                 nnetar = nnetar$predictions$`Point Forecast`,
-                                                                 thetaf = thetaf$predictions$`Point Forecast`)))
+         predictions <- dplyr::bind_rows(predictions,as.data.frame(list(time = rownames(standard_forecast_result$ets$predictions),
+                                                                 ets = standard_forecast_result$ets$predictions$`Point Forecast`,
+                                                                 arima = standard_forecast_result$arima$predictions$`Point Forecast`,
+                                                                 tbats = standard_forecast_result$tbats$predictions$`Point Forecast`,
+                                                                 nnetar = standard_forecast_result$nnetar$predictions$`Point Forecast`,
+                                                                 thetaf = standard_forecast_result$thetaf$predictions$`Point Forecast`)))
     }
 
     if(nrow(results) == 0) {
-      results <- bind_rows(ets$result,arima$result, tbats$result, nnetar$result, thetaf$result)
+      results <- dplyr::bind_rows(standard_forecast_result$ets$result,
+                                  standard_forecast_result$arima$result,
+                                  standard_forecast_result$tbats$result,
+                                  standard_forecast_result$nnetar$result,
+                                  standard_forecast_result$thetaf$result)
     } else {
-      results <- bind_rows(results,ets$result,arima$result, tbats$result, nnetar$result, thetaf$result)
+      results <- dplyr::bind_rows(results,
+                                  standard_forecast_result$ets$result,
+                                  standard_forecast_result$arima$result,
+                                  standard_forecast_result$tbats$result,
+                                  standard_forecast_result$nnetar$result,
+                                  standard_forecast_result$thetaf$result)
     }
 
   }
@@ -225,11 +240,11 @@ plot.forecastml <- function(forecast) {
 # library(fpp2) # data to test time series on
 # data <- a10
 #
-# forecast_result <- automatic_forecast(data,cv_horizon = 1,verbose=TRUE)
-#
-#
-#
-#
+# forecast_result <- automatic_forecast(data,
+#                                       cv_horizon = 1,
+#                                       verbose=TRUE)
+
+
 # #testing
 # asdf <- ets(data)
 #
