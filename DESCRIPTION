@@ -12,7 +12,8 @@ Imports: dplyr,
     h2o, 
     data.table,
     caret,
-    parallel
+    parallel,
+    tibble
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
