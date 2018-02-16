@@ -71,6 +71,10 @@ automatic_forecast <- function(data,
                                                   trainslices_xreg = trainslices_xreg,
                                                   testslices_xreg = testslices_xreg)
 
+    h2o_forecast_result <- forecast_h2o(train = data[trainslices[[i]]],
+                                        test = data[testslices[[i]]],
+                                        seed = 42)
+
     #export the output
     if(nrow(predictions) == 0) {
          predictions <- as.data.frame(list(time = rownames(standard_forecast_result$ets$predictions),
