@@ -65,15 +65,19 @@ automatic_forecast <- function(data,
       print(sprintf("--------- Test Length %s",length(testslices[[i]])))
     }
 
+
     standard_forecast_result <- standard_forecast(train = data[trainslices[[i]]],
                                                   test = data[testslices[[i]]],
                                                   timeslice = i,
                                                   trainslices_xreg = trainslices_xreg,
                                                   testslices_xreg = testslices_xreg)
 
+
+
     h2o_forecast_result <- forecast_h2o(train = data[trainslices[[i]]],
                                         test = data[testslices[[i]]],
                                         seed = 42)
+
 
     #export the output
     if(nrow(predictions) == 0) {
@@ -187,12 +191,12 @@ plot.forecastml <- function(forecast) {
 
 # # load practice data of pharmaceutical products
 
-# library(fpp2) # data to test time series on
-# data <- a10
-#
-# forecast_result <- automatic_forecast(data,
-#                                       cv_horizon = 1,
-#                                       verbose=TRUE)
+library(fpp2) # data to test time series on
+data <- a10
+
+forecast_result <- automatic_forecast(data,
+                                      cv_horizon = 1,
+                                      verbose=TRUE)
 
 
 # #testing
