@@ -64,14 +64,14 @@ standard_forecast <- function(train,
                       FUN = forecast::ets,
                       name = 'ets',
                       timeslice = timeslice,
-                      lambda = forecast::BoxCox.lambda(data[trainslices[[timeslice]]]))
+                      lambda = forecast::BoxCox.lambda(train))
 
   arima <- fit_forecast(train = train,
                         test = test,
                         FUN = forecast::auto.arima,
                         name = 'arima',
                         timeslice = timeslice,
-                        lambda = forecast::BoxCox.lambda(data[trainslices[[timeslice]]]))
+                        lambda = forecast::BoxCox.lambda(train))
 
   tbats <- fit_forecast(train = train,
                         test = test,
@@ -84,7 +84,7 @@ standard_forecast <- function(train,
                          FUN = forecast::nnetar,
                          name = 'nnetar',
                          timeslice = timeslice,
-                         lambda = forecast::BoxCox.lambda(data[trainslices[[timeslice]]]),
+                         lambda = forecast::BoxCox.lambda(train),
                          train_regressor = trainslices_xreg,
                          test_regressor = testslices_xreg)
 
