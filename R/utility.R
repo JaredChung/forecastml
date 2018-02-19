@@ -16,7 +16,7 @@
 #'
 #'
 #'
-#'
+#' @export
 
 
 # Standard 80/20 train test split
