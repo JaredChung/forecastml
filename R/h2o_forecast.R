@@ -48,7 +48,7 @@ forecast_h2o <- function(train,
 
 
   # h2o initilization
-  init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
+  #init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
 
   # Convert into h2o data frame
   train_h2o <- h2o::as.h2o(train)
@@ -232,7 +232,7 @@ forecast_h2o <- function(train,
                       gbm = gbm_model_param,
                       rf = rf_model_param)
 
-  h2o::h2o.shutdown(prompt=FALSE)
+  #h2o::h2o.shutdown(prompt=FALSE)
 
 
   return(list(results = results,
