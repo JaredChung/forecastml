@@ -25,6 +25,8 @@ automatic_forecast <- function(data,
                                intitial_window = 0.7,
                                external_regressor = NULL){
 
+
+
   # Split Dataset into cross validation slices
   trainslices <- cross_validation_data(data,
                                        initialwindow = intitial_window,
@@ -56,6 +58,12 @@ automatic_forecast <- function(data,
   models <- data.frame()
 
 
+  # Convert the data input into a data frame
+  data_2 <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
+                           value = as.numeric(data)))
+
+  init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
+
   # Cross validation time series
   for(i in 1:length(trainslices)) {
 
@@ -73,11 +81,11 @@ automatic_forecast <- function(data,
                                                   testslices_xreg = testslices_xreg)
 
 
-
-    h2o_forecast_result <- forecast_h2o(train = data[trainslices[[i]]],
-                                        test = data[testslices[[i]]],
+    h2o_forecast_result <- forecast_h2o(train = data_2[trainslices[[i]],],
+                                        test = data_2[testslices[[i]],],
                                         seed = 42)
 
+    h2o::h2o.shutdown(prompt=FALSE)
 
     #export the output
     if(nrow(predictions) == 0) {
@@ -198,6 +206,11 @@ forecast_result <- automatic_forecast(data,
                                       cv_horizon = 1,
                                       verbose=TRUE)
 
+
+# data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
+#                         value = as.numeric(data)))
+#
+# train <- ts(data[1:42,]$value)
 
 # #testing
 # asdf <- ets(data)
