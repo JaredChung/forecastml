@@ -59,6 +59,9 @@ standard_forecast <- function(train,
                               trainslices_xreg,
                               testslices_xreg) {
 
+  train <- ts(train)
+  test <- ts(test)
+
   ets <- fit_forecast(train = train,
                       test = test,
                       FUN = forecast::ets,
