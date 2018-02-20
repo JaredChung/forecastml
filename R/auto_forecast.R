@@ -59,7 +59,7 @@ automatic_forecast <- function(data,
 
 
   # Convert the data input into a data frame
-  data_2 <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
+  data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
                            value = as.numeric(data)))
 
   init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
@@ -74,15 +74,15 @@ automatic_forecast <- function(data,
     }
 
 
-    standard_forecast_result <- standard_forecast(train = data[trainslices[[i]]],
-                                                  test = data[testslices[[i]]],
+    standard_forecast_result <- standard_forecast(train = data[trainslices[[i]],]$value,
+                                                  test = data[testslices[[i]],]$value,
                                                   timeslice = i,
                                                   trainslices_xreg = trainslices_xreg,
                                                   testslices_xreg = testslices_xreg)
 
 
-    h2o_forecast_result <- forecast_h2o(train = data_2[trainslices[[i]],],
-                                        test = data_2[testslices[[i]],],
+    h2o_forecast_result <- forecast_h2o(train = data[trainslices[[i]],],
+                                        test = data[testslices[[i]],],
                                         seed = 42)
 
     h2o::h2o.shutdown(prompt=FALSE)
@@ -144,52 +144,7 @@ forecast.forecastml <- function(x) {
 
 }
 
-#------------------------------------
-# Plot Method
-#---------------------------------
 
-
-plot <- function(forecast) {
-
-  UseMethod("plot")
-
-}
-
-plot.default <- function(forecast) {
-
-  message("Error unable to deal with this object")
-  return(forecast)
-
-}
-
-plot.forecastml <- function(forecast) {
-
-
-      plot <- forecast$results %>% filter(rowname == "Test set") %>%
-                          select(-c(ACF1,ACF1,timeslice)) %>%
-                          group_by(model) %>%
-                          summarise(avg_ME = mean(ME),
-                                    std_ME = sd(ME),
-                                    avg_RMSE = mean(RMSE),
-                                    std_RMSE = sd(RMSE),
-                                    avg_MAE = mean(MAE),
-                                    std_MAE = sd(MAE),
-                                    avg_MPE = mean(MPE),
-                                    std_MPE = sd(MPE),
-                                    avg_MAPE = mean(MAPE),
-                                    std_MAPE = sd(MAPE),
-                                    avg_MASE = mean(MASE),
-                                    std_MASE = sd(MASE)
-                                    ) %>%
-                          ggplot(aes(model,avg_RMSE,fill=model)) + geom_col()
-
-
-      #forecast_result$predictions %>% gather(model,amount,-time ) %>% View()
-
-      return(plot)
-
-
-}
 
 #------------------------------------
 # Dashboard Method (Undercontruction)
@@ -207,10 +162,13 @@ forecast_result <- automatic_forecast(data,
                                       verbose=TRUE)
 
 
-# data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
-#                         value = as.numeric(data)))
-#
-# train <- ts(data[1:42,]$value)
+
+
+data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
+                        value = as.numeric(data)))
+
+train <- ts(data[1:42,]$value)
+test <- ts(data[43,]$value)
 
 # #testing
 # asdf <- ets(data)
