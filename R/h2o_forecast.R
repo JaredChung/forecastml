@@ -83,6 +83,8 @@ forecast_h2o <- function(train,
 
   # Set range of alpha to be searched on (deciding the balance between ridge(L2) and lasso(l1))
 
+  print("running Generalised Linear Model")
+
   glm_params = list(alpha = c(0,0.25,0.5,0.75,1))
 
   glm_grid <- h2o::h2o.grid("glm",
@@ -109,6 +111,8 @@ forecast_h2o <- function(train,
   # RANDOM FOREST
   #========================================
 
+  print("running Random Forest")
+
   rf_params = list(ntrees = c(100,300,500),
                    max_depth = c(3, 6, 9))
 
@@ -133,6 +137,9 @@ forecast_h2o <- function(train,
   #========================================
   # GRADIENT BOOSTED MACHINE
   #========================================
+
+
+  print("running Gradient Boosted Machine")
 
   gbm_params <- list(learn_rate = c(0.01, 0.05, 0.1),
                       max_depth = c(3, 6, 9),
@@ -162,6 +169,8 @@ forecast_h2o <- function(train,
   #========================================
   # MULTILAYER PERCEPTRON
   #========================================
+
+  print("running Multilayer Perceptron")
 
   activation_opt <- c("Rectifier", "RectifierWithDropout", "Maxout", "MaxoutWithDropout")
   l1_opt <- c(0, 0.00001, 0.0001, 0.001, 0.01, 0.1)
@@ -232,7 +241,7 @@ forecast_h2o <- function(train,
                       gbm = gbm_model_param,
                       rf = rf_model_param)
 
-  h2o::h2o.shutdown(prompt=FALSE)
+  #h2o::h2o.shutdown(prompt=FALSE)
 
 
   return(list(results = results,
