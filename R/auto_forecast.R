@@ -81,13 +81,11 @@ automatic_forecast <- function(data,
                                                   testslices_xreg = testslices_xreg)
 
 
-    #init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
-
     h2o_forecast_result <- forecast_h2o(train = data[trainslices[[i]],],
                                         test = data[testslices[[i]],],
                                         seed = 42)
 
-    #h2o::h2o.shutdown(prompt=FALSE)
+    shutdown <- h2o::h2o.shutdown(prompt=FALSE)
 
     #export the output
     if(nrow(predictions) == 0) {
@@ -166,8 +164,8 @@ forecast_result <- automatic_forecast(data,
 
 
 
-data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
-                        value = as.numeric(data)))
+# data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
+#                         value = as.numeric(data)))
 
 
 
