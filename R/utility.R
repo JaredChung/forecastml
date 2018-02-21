@@ -56,5 +56,27 @@ cross_validation_data <- function(data,
 }
 
 
+error_metric <- function(test, prediction) {
+
+
+  error <- (xx - ff[1:n])[test]
+  pe <- error / xx[test] * 100
+
+  me <- mean(error, na.rm = TRUE)
+  mse <- mean(error ^ 2, na.rm = TRUE)
+  mae <- mean(abs(error), na.rm = TRUE)
+  mape <- mean(abs(pe), na.rm = TRUE)
+  mpe <- mean(pe, na.rm = TRUE)
+  out <- c(me, sqrt(mse), mae, mpe, mape)
+  names(out) <- c("ME", "RMSE", "MAE", "MPE", "MAPE")
+
+
+}
+
+
+
+
+
+
 
 
