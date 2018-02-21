@@ -61,7 +61,7 @@ fit_feature_extracter <- function(data, date_col = FALSE, num_lag = 2, num_roll 
 
   fourier_terms <- forecast::fourier(data, K = frequency(data)/2)
 
-  new_data <- cbind(new_data,as.data.frame(fourier_terms))
+  new_data <- cbind(new_data, as.data.frame(fourier_terms))
 
   # Create Holiday Days (UNDER CONSTRUCITON)
 

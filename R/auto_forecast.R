@@ -62,7 +62,7 @@ automatic_forecast <- function(data,
   data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
                            value = as.numeric(data)))
 
-  init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
+
 
   # Cross validation time series
   for(i in 1:length(trainslices)) {
@@ -81,11 +81,13 @@ automatic_forecast <- function(data,
                                                   testslices_xreg = testslices_xreg)
 
 
+    #init <- h2o::h2o.init(strict_version_check = FALSE, nthreads = -1)
+
     h2o_forecast_result <- forecast_h2o(train = data[trainslices[[i]],],
                                         test = data[testslices[[i]],],
                                         seed = 42)
 
-    h2o::h2o.shutdown(prompt=FALSE)
+    #h2o::h2o.shutdown(prompt=FALSE)
 
     #export the output
     if(nrow(predictions) == 0) {
@@ -167,8 +169,10 @@ forecast_result <- automatic_forecast(data,
 data <- data.frame(list(date = as.Date(lubridate::date_decimal(as.numeric(time(data)))),
                         value = as.numeric(data)))
 
-train <- ts(data[1:42,]$value)
-test <- ts(data[43,]$value)
+
+
+# train <- ts(data[1:42,]$value)
+# test <- ts(data[43,]$value)
 
 # #testing
 # asdf <- ets(data)

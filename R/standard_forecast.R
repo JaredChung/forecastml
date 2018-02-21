@@ -38,17 +38,22 @@ fit_forecast <- function(train,
   # check if there is external regressors
   if(is.null(train_regressor)) {
     model <- FUN(train, ...)
-    predictions <-forecast::forecast(model, h = length(test))
+    predictions <- forecast::forecast(model, h = length(test))
   } else {
     model <- FUN(train, xreg = train_regressor, ...)
-    predictions <-forecast::forecast(model, h = length(test), xreg = test_regressor)
+    predictions <- forecast::forecast(model, h = length(test), xreg = test_regressor)
   }
 
-  result <- forecast::accuracy(predictions, test) %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column() %>%
-    dplyr::mutate(model = name,
-           timeslice = timeslice)
+  result <- data.frame(model = name,
+                       timeslice = timeslice,
+                       error = error_metric(test,as.numeric(predictions$mean)))
+
+  # result <- forecast::accuracy(predictions, test) %>%
+  #   as.data.frame() %>%
+  #   tibble::rownames_to_column() %>%
+  #   dplyr::mutate(model = name,
+  #          timeslice = timeslice)
+
 
   return(list(predictions = as.data.frame(predictions), result = result, model = model ))
 }

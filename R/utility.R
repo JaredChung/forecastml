@@ -56,11 +56,13 @@ cross_validation_data <- function(data,
 }
 
 
+
+
 error_metric <- function(test, prediction) {
 
 
-  error <- (xx - ff[1:n])[test]
-  pe <- error / xx[test] * 100
+  error <- (test - prediction)
+  pe <- error / prediction * 100
 
   me <- mean(error, na.rm = TRUE)
   mse <- mean(error ^ 2, na.rm = TRUE)
@@ -70,13 +72,26 @@ error_metric <- function(test, prediction) {
   out <- c(me, sqrt(mse), mae, mpe, mape)
   names(out) <- c("ME", "RMSE", "MAE", "MPE", "MAPE")
 
-
+  return(out)
 }
 
 
+#Test
 
-
-
-
+# library(fpp2)
+#
+# data <- a10
+#
+# trainslices <- cross_validation_data(data)$train
+# testslices <- cross_validation_data(data)$test
+#
+#
+# fit <- auto.arima(data[trainslices[[1]]])
+#
+# predict <- forecast(fit,h = 1)
+#
+# error_metric(data[testslices[[1]]],as.numeric(predict$mean))
+#
+# forecast::accuracy(predict,data[testslices[[1]]])
 
 
