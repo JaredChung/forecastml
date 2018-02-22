@@ -13,7 +13,8 @@ Imports: dplyr,
     data.table,
     caret,
     parallel,
-    tibble
+    tibble,
+    glmnet
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
