@@ -63,6 +63,26 @@ caret_forecast <- function (train,
       # Gradient Boosted Machine
 
 
+      grid <- expand.grid(interaction.depth=c(1,2), # Depth of variable interactions
+                          n.trees=c(10,20),	        # Num trees to fit
+                          shrinkage=c(0.01,0.1),		# Try 2 values for learning rate
+                          n.minobsinnode = 20)
+      #
+      set.seed(1951)  # set the seed
+
+      # Set up to do parallel processing
+      registerDoParallel(4)		# Registrer a parallel backend for train
+      getDoParWorkers()
+
+      gbm.tune <- train(x=trainX,y=trainData$Class,
+                        method = "gbm",
+                        metric = "ROC",
+                        trControl = ctrl,
+                        tuneGrid=grid,
+                        verbose=FALSE)
+
+
+
 
 
 
