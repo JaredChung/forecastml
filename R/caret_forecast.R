@@ -30,6 +30,8 @@ caret_forecast <- function (train,
                             test){
 
 
+      train_control <- caret::trainControl(method = "cv",
+                                           number = 10)
 
       # Elastic net
       lambda_grid <- 10 ^ seq(2, -2, length = 100)
@@ -42,10 +44,20 @@ caret_forecast <- function (train,
                             data = train,
                             method = "glmnet",
                             tuneGrid = glmnet_grid,
-                            trControl = )
+                            trControl = train_control,
+                            standardize = TRUE,
+                            maxit = 1000000)
+
+      #glmnet_model <- glmnet_model$bestTune
+
+      glmnet_model_final <- glmnet_model$finalModel
+
+      glmnet_coef <- coef(gmlnet_model_final, s = glmnet_model$bestTune$lambda)
 
 
       # Random Forest
+
+
 
 
       # Gradient Boosted Machine
