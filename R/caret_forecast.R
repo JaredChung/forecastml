@@ -27,8 +27,11 @@
 
 
 caret_forecast <- function (train,
-                            test){
+                            test,
+                            seed=42){
 
+
+      set.seed(seed)
 
       train_control <- caret::trainControl(method = "cv",
                                            number = 10)
@@ -55,6 +58,8 @@ caret_forecast <- function (train,
       glmnet_coef <- coef(gmlnet_model_final, s = glmnet_model$bestTune$lambda)
 
 
+
+
       # Random Forest
 
 
@@ -68,7 +73,7 @@ caret_forecast <- function (train,
                           shrinkage=seq(0.1,1, by=0.2),
                           n.minobsinnode = 20)
       #
-      set.seed(1951)  # set the seed
+       # set the seed
 
       # Set up to do parallel processing
       registerDoParallel(parallel::detectCores())		# Registrer a parallel backend for train
@@ -82,7 +87,12 @@ caret_forecast <- function (train,
                         verbose = FALSE)
 
 
+      result <- data.frame(model = name,
+                           timeslice = timeslice,
+                           error = error_metric(test,as.numeric(predictions$mean)))
 
+
+    return(list())
 
 }
 
