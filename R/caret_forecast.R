@@ -57,8 +57,9 @@ caret_forecast <- function (train,
 
       glmnet_coef <- coef(gmlnet_model_final, s = glmnet_model$bestTune$lambda)
 
+      glm_predict <- predict(glmnet_model_final, newdata = test)
 
-
+      result <- error_metric(test = test$value, prediction = glm_predict)
 
       # Random Forest
 
