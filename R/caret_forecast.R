@@ -37,11 +37,9 @@ caret_forecast <- function (train,
                                            number = 10)
 
       # Elastic net
-      lambda_grid <- 10 ^ seq(2, -2, length = 100)
-      alpha_grid <- seq(0, 1, length = 10)
 
-      glmnet_grid <- expand.grid(lambda = lambda_grid,
-                                 alpha = alpha_grid)
+      glmnet_grid <- expand.grid(lambda = 10 ^ seq(2, -2, length = 100),
+                                 alpha = seq(0, 1, length = 10))
 
       glmnet_model <- train(value ~ .,
                             data = train,
@@ -69,10 +67,10 @@ caret_forecast <- function (train,
       # Gradient Boosted Machine
 
 
-      grid_glm <- expand.grid(interaction.depth=c(1,3,7,10), # Depth of variable interactions
-                          n.trees=c(100,200),	        # Num trees to fit
-                          shrinkage=seq(0.1,1, by=0.2),
-                          n.minobsinnode = 20)
+      grid_gbm <- expand.grid(interaction.depth=c(1,3,7,10), # Depth of variable interactions
+                              n.trees=c(100,200),	        # Num trees to fit
+                              shrinkage=seq(0.1,1, by=0.2),
+                              n.minobsinnode = 20)
       #
        # set the seed
 
@@ -82,9 +80,9 @@ caret_forecast <- function (train,
 
       gbm.tune <- train(x=trainX,y=trainData$Class,
                         method = "gbm",
-                        metric = "ROC",
+                        #metric = "ROC",
                         trControl = ctrl,
-                        tuneGrid = grid_glm,
+                        tuneGrid = grid_gbm,
                         verbose = FALSE)
 
 
@@ -110,7 +108,8 @@ trainslices <- cross_validation_data(data)$train
 testslices <- cross_validation_data(data)$test
 
 
-fit <- caret_forecast()
+fit <- caret_forecast(data[trainslices[[1]]],
+                      data[testslices[[1]]])
 
 
 
