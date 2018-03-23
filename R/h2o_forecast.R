@@ -21,7 +21,7 @@
 
 
 #https://github.com/h2oai/h2o-tutorials/blob/master/h2o-open-tour-2016/chicago/grid-search-model-selection.R
-
+#http://www.business-science.io/code-tools/2017/10/28/demo_week_h2o.html
 
 ###################################
 # H2o

@@ -1,5 +1,8 @@
 # forecastml
 
+resources
+
+https://www.quora.com/Data-Science-Can-machine-learning-be-used-for-time-series-analysis
 
 0. libraries
 

@@ -19,7 +19,7 @@
 #' @export
 
 
-
+#https://github.com/bhimmetoglu/kaggle_101/blob/master/HousePrices/modelsExplore/exploreE1071.R
 
 ###################################
 # Caret
@@ -34,7 +34,7 @@ caret_forecast <- function (train,
       set.seed(seed)
 
       train_control <- caret::trainControl(method = "cv",
-                                           number = 10)
+                                           number = 5)
 
       # Elastic net
 
