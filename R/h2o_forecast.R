@@ -85,7 +85,7 @@ forecast_h2o <- function(train,
 
   print("running Generalised Linear Model")
 
-  glm_params = list(alpha = c(0,0.25,0.5,0.75,1))
+  glm_params = list(alpha = seq(0, 1, length = 10))
 
   glm_grid <- h2o::h2o.grid("glm",
                            x = x_index,

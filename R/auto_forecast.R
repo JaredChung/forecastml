@@ -154,13 +154,13 @@ forecast.forecastml <- function(x) {
 
 # # load practice data of pharmaceutical products
 
-library(fpp2) # data to test time series on
-data <- a10
-
-forecast_result <- automatic_forecast(data,
-                                      cv_horizon = 1,
-                                      verbose=TRUE)
-
+# library(fpp2) # data to test time series on
+# data <- a10
+#
+# forecast_result <- automatic_forecast(data,
+#                                       cv_horizon = 1,
+#                                       verbose=TRUE)
+#
 
 
 
