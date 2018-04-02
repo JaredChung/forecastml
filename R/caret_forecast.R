@@ -100,16 +100,16 @@ caret_forecast <- function (train,
 
 
 
-library(fpp2)
-
-data <- a10
-
-trainslices <- cross_validation_data(data)$train
-testslices <- cross_validation_data(data)$test
-
-
-fit <- caret_forecast(data[trainslices[[1]]],
-                      data[testslices[[1]]])
+# library(fpp2)
+#
+# data <- a10
+#
+# trainslices <- cross_validation_data(data)$train
+# testslices <- cross_validation_data(data)$test
+#
+#
+# fit <- caret_forecast(data[trainslices[[1]]],
+#                       data[testslices[[1]]])
 
 
 
