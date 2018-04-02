@@ -85,6 +85,25 @@ forecast_h2o <- function(train,
 
   print("running Generalised Linear Model")
 
+  # solvers <- c("IRLSM", "L_BFGS", "COORDINATE_DESCENT_NAIVE", "COORDINATE_DESCENT")
+  #
+  # families <- c("gaussian", "poisson", "gamma")
+  #
+  # gaussianLinks <- c("identity", "log", "inverse")
+  #
+  # poissonLinks <- c("log")
+  #
+  # gammaLinks <- c("identity", "log", "inverse")
+  # gammaLinks_CD <- c("identity", "log")
+
+  # if(family == "gaussian")
+  #     theLinks <- gaussianLinks
+  #   else if(family == "poisson")theLinks <- poissonLinks
+  #   else{
+  #     if(solver == "COORDINATE_DESCENT")theLinks <- gammaLinks_CD
+  #     else theLinks = gammaLinks
+  # }
+
   glm_params = list(alpha = seq(0, 1, length = 10))
 
   glm_grid <- h2o::h2o.grid("glm",
@@ -114,7 +133,11 @@ forecast_h2o <- function(train,
   print("running Random Forest")
 
   rf_params = list(ntrees = c(100,300,500),
-                   max_depth = c(3, 6, 9))
+                   max_depth = c(3, 6, 9),
+                   min_rows = c(1, 2),
+                   mtries = c(2, 3, 4, 5),
+                   sample_rate = c(0.5, 0.632, 0.8, 0.95),
+                   col_sample_rate_per_tree = c(0.5, 0.9, 1.0))
 
   rf_grid <- h2o::h2o.grid("randomForest",
                             x = x_index,
@@ -145,7 +168,9 @@ forecast_h2o <- function(train,
                       max_depth = c(3, 6, 9),
                       sample_rate = c(0.6, 0.8, 1.0),
                       col_sample_rate = c(0.2, 0.5, 1.0),
-                      ntrees = c(100,300,500))
+                      ntrees = c(100,300,500),
+                     min_rows = c(2, 5, 10),
+                     col_sample_rate_per_tree = c(0.8, 0.99, 1.0),)
 
   # Train and validate a grid of GBMs
   gbm_grid <- h2o::h2o.grid("gbm",
