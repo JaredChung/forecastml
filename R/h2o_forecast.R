@@ -170,7 +170,7 @@ forecast_h2o <- function(train,
                       col_sample_rate = c(0.2, 0.5, 1.0),
                       ntrees = c(100,300,500),
                      min_rows = c(2, 5, 10),
-                     col_sample_rate_per_tree = c(0.8, 0.99, 1.0),)
+                     col_sample_rate_per_tree = c(0.8, 0.99, 1.0))
 
   # Train and validate a grid of GBMs
   gbm_grid <- h2o::h2o.grid("gbm",
