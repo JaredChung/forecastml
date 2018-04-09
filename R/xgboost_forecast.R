@@ -61,8 +61,11 @@ library(xgboost)
 library(caret)
 
 # Grid for model training
-xgb_grid <- expand.grid(eta = 2^seq(-7,-5), colsample_bytree = c(0.2,0.4, 0.6, 0.8),
-                        max_depth = c(2,4,6,8), min_child_weight = c(0,1,2,4), gamma = c(0,0.001,0.01, 0.1))
+xgb_grid <- expand.grid(eta = 2^seq(-7,-5),
+                        colsample_bytree = c(0.2,0.4, 0.6, 0.8),
+                        max_depth = c(2,4,6,8),
+                        min_child_weight = c(0,1,2,4),
+                        gamma = c(0,0.001,0.01, 0.1))
 
 # xgb style matrices
 dtrain <- xgb.DMatrix(trainSparse, label = outcomes)

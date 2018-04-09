@@ -104,6 +104,36 @@ forecast_h2o <- function(train,
   #     else theLinks = gammaLinks
   # }
 
+  # allGrids <- lapply(solvers, function(solver){
+  #   lapply(families, function(family){
+  #
+  #     if(family == "gaussian")theLinks <- gaussianLinks
+  #     else if(family == "poisson")theLinks <- poissonLinks
+  #     else{
+  #       if(solver == "COORDINATE_DESCENT")theLinks <- gammaLinks_CD
+  #       else theLinks = gammaLinks
+  #     }
+  #
+  #     lapply(theLinks, function(link){
+  #       grid_id = paste("GLM", solver, family, link, sep="_")
+  #       h2o.grid("glm", grid_id = grid_id,
+  #                hyper_params = list(
+  #                  alpha = c(0, 0.1, 0.5, 0.99)
+  #                ),
+  #                x = x, y = y, training_frame = train,
+  #                nfolds = 10,
+  #                lambda_search = TRUE,
+  #
+  #                solver = solver,
+  #                family = family,
+  #                link = link,
+  #
+  #                max_iterations = 100
+  #       )
+  #     })
+  #   })
+  # })
+
   glm_params = list(alpha = seq(0, 1, length = 10))
 
   glm_grid <- h2o::h2o.grid("glm",
@@ -198,8 +228,10 @@ forecast_h2o <- function(train,
   print("running Multilayer Perceptron")
 
   activation_opt <- c("Rectifier", "RectifierWithDropout", "Maxout", "MaxoutWithDropout")
+
   l1_opt <- c(0, 0.00001, 0.0001, 0.001, 0.01, 0.1)
   l2_opt <- c(0, 0.00001, 0.0001, 0.001, 0.01, 0.1)
+
   hyper_params <- list(activation = activation_opt,
                        l1 = l1_opt,
                        l2 = l2_opt)
@@ -208,12 +240,12 @@ forecast_h2o <- function(train,
                         model_id="mlp_model",
                         x = x_index,
                         y = y_index,
-                        training_frame=train_h2o,
-                        validation_frame=test_h2o,   ## validation dataset: used for scoring and early stopping
-                        activation="Rectifier",  ## default
-                        hidden=c(200,200),       ## default: 2 hidden layers with 200 neurons each
-                        epochs=1,
-                        variable_importances=T    ## not enabled by default
+                        training_frame = train_h2o,
+                        validation_frame = test_h2o,   ## validation dataset: used for scoring and early stopping
+                        activation = "Rectifier",  ## default
+                        hidden = c(200,200),       ## default: 2 hidden layers with 200 neurons each
+                        epochs = 100,
+                        variable_importances = T    ## not enabled by default
                         )
 
   #========================================
