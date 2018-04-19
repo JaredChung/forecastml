@@ -3,6 +3,7 @@
 resources
 
 https://www.quora.com/Data-Science-Can-machine-learning-be-used-for-time-series-analysis
+https://www.r-bloggers.com/time-series-deep-learning-forecasting-sunspots-with-keras-stateful-lstm-in-r/
 
 0. libraries
 
