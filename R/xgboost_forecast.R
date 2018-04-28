@@ -21,35 +21,6 @@
 #'
 
 
-searchGridSubCol <- expand.grid(subsample = c(0.5, 0.75, 1),
-                                colsample_bytree = c(0.6, 0.8, 1))
-ntrees <- 100
-
-#Build a xgb.DMatrix object
-DMMatrixTrain <- xgb.DMatrix(data = yourMatrix, label = yourTarget)
-
-rmseErrorsHyperparameters <- apply(searchGridSubCol, 1, function(parameterList){
-
-  #Extract Parameters to test
-  currentSubsampleRate <- parameterList[["subsample"]]
-  currentColsampleRate <- parameterList[["colsample_bytree"]]
-
-  xgboostModelCV <- xgb.cv(data =  DMMatrixTrain, nrounds = ntrees, nfold = 5, showsd = TRUE,
-                           metrics = "rmse", verbose = TRUE, "eval_metric" = "rmse",
-                           "objective" = "reg:linear", "max.depth" = 15, "eta" = 2/ntrees,
-                           "subsample" = currentSubsampleRate, "colsample_bytree" = currentColsampleRate)
-
-  xvalidationScores <- as.data.frame(xgboostModelCV)
-  #Save rmse of the last iteration
-  rmse <- tail(xvalidationScores$test.rmse.mean, 1)
-
-  return(c(rmse, currentSubsampleRate, currentColsampleRate))
-
-})
-
-#####
-# Linear Model
-###
 
 # Clean and prepare data
 #source("stacking/cleanData.R")
@@ -225,3 +196,42 @@ write.csv(submission,"submission.csv",row.names = FALSE)
 # Feature importances
 importance <- xgb.importance(feature_names = trainSparse@Dimnames[[2]], model = mod.xgb)
 head(importance,10)
+
+
+
+
+
+
+
+
+
+searchGridSubCol <- expand.grid(subsample = c(0.5, 0.75, 1),
+                                colsample_bytree = c(0.6, 0.8, 1))
+ntrees <- 100
+
+#Build a xgb.DMatrix object
+DMMatrixTrain <- xgb.DMatrix(data = yourMatrix, label = yourTarget)
+
+rmseErrorsHyperparameters <- apply(searchGridSubCol, 1, function(parameterList){
+
+  #Extract Parameters to test
+  currentSubsampleRate <- parameterList[["subsample"]]
+  currentColsampleRate <- parameterList[["colsample_bytree"]]
+
+  xgboostModelCV <- xgb.cv(data =  DMMatrixTrain, nrounds = ntrees, nfold = 5, showsd = TRUE,
+                           metrics = "rmse", verbose = TRUE, "eval_metric" = "rmse",
+                           "objective" = "reg:linear", "max.depth" = 15, "eta" = 2/ntrees,
+                           "subsample" = currentSubsampleRate, "colsample_bytree" = currentColsampleRate)
+
+  xvalidationScores <- as.data.frame(xgboostModelCV)
+  #Save rmse of the last iteration
+  rmse <- tail(xvalidationScores$test.rmse.mean, 1)
+
+  return(c(rmse, currentSubsampleRate, currentColsampleRate))
+
+})
+
+#####
+# Linear Model
+###
+
